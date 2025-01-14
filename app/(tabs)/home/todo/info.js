@@ -1,14 +1,16 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View, ScrollView } from "react-native";
 import React from "react";
 import { Ionicons, Entypo } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import { SimpleLineIcons } from '@expo/vector-icons';
+import Toggle from '../toggle';
 
 const info = () => {
   const params = useLocalSearchParams();
   return (
-    <View style={{ flex: 1, backgroundColor: "white", padding: 10 }}>
+    
+    <ScrollView style={{ flex: 1, backgroundColor: "white", padding: 10 }}>
       <View
         style={{
           flexDirection: "row",
@@ -122,7 +124,7 @@ const info = () => {
           </Pressable>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

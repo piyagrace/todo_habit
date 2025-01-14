@@ -1,0 +1,30 @@
+.tab-container {
+    display: flex;
+    border-radius: 50px;
+    background-color: #f8f8f8;
+    padding: 5px;
+    width: fit-content;
+    margin-bottom: 20px;
+}
+
+.tab {
+    flex-grow: 1;
+    border: none;
+    outline: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.tab.active {
+    background-color: #ff5a5f;
+    color: white;
+}
+
+.content {
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
