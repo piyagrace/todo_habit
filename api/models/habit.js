@@ -15,12 +15,18 @@ const habitSchema = new mongoose.Schema({
         default: "daily"
     },
     days: {
-        type: [String], // Array of day abbreviations, e.g., ["M", "W", "F"]
+        type: [String], // Array of day abbreviations 
         default: []
     },
     reminder: {
-        type: Boolean,
-        default: false,
+        enabled: {
+            type: Boolean,
+            default: false,
+        },
+        time: {
+            type: String, // Format: "HH:MM AM/PM"
+            default: null,
+        },
     },
     completed: {
         type: Object,
@@ -33,9 +39,9 @@ const habitSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
+        required: true, // Ensure every habit is associated with a user
     },
 });
 
-const Habit = mongoose.model("Habit",habitSchema);
-
-module.exports = Habit
+const Habit = mongoose.model("Habit", habitSchema);
+module.exports = Habit;

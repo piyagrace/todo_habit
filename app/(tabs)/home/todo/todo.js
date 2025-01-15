@@ -18,6 +18,7 @@ import moment from "moment";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import WeekCalendar from "../weekcalendar";
 
 const Todo = () => {
   const router = useRouter();
@@ -141,7 +142,7 @@ const Todo = () => {
 
   const navigateToTodoDetails = (item) => {
     router.push({
-      pathname: "/home/info",
+      pathname: "/home/todo/info",
       params: {
         id: item._id,
         title: item.title,
@@ -156,10 +157,7 @@ const Todo = () => {
     <>
       {/* Category Filters and Add Button */}
 
-      <View style={styles.togglebutton}>
-
-      </View>
-
+      <View><WeekCalendar /></View>
       <View style={styles.categoryContainer}>
         {["All", "Work", "Personal"].map((cat) => (
           <Pressable
@@ -351,13 +349,12 @@ export default Todo;
 const styles = StyleSheet.create({
   categoryContainer: {
     marginHorizontal: 10,
-    marginVertical: 10,
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
   },
   categoryButton: {
-    backgroundColor: "#7CB9E8",
+    backgroundColor: "white",
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 25,
@@ -365,14 +362,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   activeCategoryButton: {
-    backgroundColor: "#007FFF",
+    backgroundColor: '#ff5a5f',
   },
   categoryText: {
-    color: "white",
+    color: "black",
     textAlign: "center",
+    fontSize: 13
   },
   activeCategoryText: {
     fontWeight: "bold",
+    color: "white"
   },
   scrollView: {
     flex: 1,

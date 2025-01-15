@@ -14,7 +14,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useIsFocused } from "@react-navigation/native";
 
-const index = () => {
+const ProfileScreen = () => {
   const [userName, setUserName] = useState(""); // <-- Store user's name
   const [completedTasks, setCompletedTasks] = useState(0);
   const [pendingTasks, setPendingTasks] = useState(0);
@@ -168,7 +168,7 @@ const index = () => {
   );
 };
 
-export default index;
+export default ProfileScreen;
 
 const styles = StyleSheet.create({
   container: {

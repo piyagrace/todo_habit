@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View, FlatList } from "react-native";
 import React, { useState, useEffect } from "react";
 import moment from "moment";
 import { Calendar } from "react-native-calendars";
@@ -7,7 +7,7 @@ import { FontAwesome, Feather, MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 
-const index = () => {
+const index = () => { // Capitalized component name for convention
   const router = useRouter();
   const today = moment().format("YYYY-MM-DD");
 
@@ -82,34 +82,59 @@ const index = () => {
         markedDates={{
           [selectedDate]: {
             selected: true,
-            selectedColor: "#7CB9E8",
+            selectedColor: "#ff5a5f",
           },
+        }}
+        theme={{
+          selectedDayBackgroundColor: "#ff5a5f",
+          selectedDayTextColor: "#ffffff",
+          todayTextColor: "#ff5a5f",
+          arrowColor: "#ff5a5f",
+          // Additional theme customizations if needed
         }}
       />
 
-      <View style={{ marginTop: 20 }} />
+      {/* Spacer */}
+      <View style={{ height: 20 }} />
 
       {/* Completed Tasks Header */}
       <View style={styles.headerRow}>
-        <Text>Completed Tasks</Text>
+        <Text style={{ fontSize: 18, fontWeight: "bold" }}>Completed Tasks</Text>
         <MaterialIcons name="arrow-drop-down" size={24} color="black" />
       </View>
 
-      {/* List of Completed Todos */}
-      {todos?.map((item, index) => (
-        <Pressable style={styles.todoItem} key={index}>
-          <View style={styles.todoRow}>
-            <FontAwesome name="circle" size={18} color="gray" />
-            <Text style={styles.todoText}>{item?.title}</Text>
-            <Feather name="flag" size={20} color="gray" />
+      {/* Divider */}
+      <View style={{ height: 1, backgroundColor: "#e0e0e0", marginHorizontal: 10 }} />
+
+      {/* Scrollable List of Completed Todos */}
+      <FlatList
+        data={todos}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => (
+          <Pressable style={styles.todoItem}>
+            <View style={styles.todoRow}>
+              <FontAwesome name="circle" size={18} color="gray" />
+              <Text style={styles.todoText}>{item?.title}</Text>
+              <Feather name="flag" size={20} color="gray" />
+            </View>
+          </Pressable>
+        )}
+        contentContainerStyle={styles.todoList}
+        showsVerticalScrollIndicator={false}
+        style={{ flex: 1 }}
+        ListEmptyComponent={
+          <View style={styles.emptyList}>
+            <Text style={{ color: "gray", textAlign: "center" }}>
+              No completed tasks for this date.
+            </Text>
           </View>
-        </Pressable>
-      ))}
+        }
+      />
     </View>
   );
 };
 
-export default index;
+export default index; // Ensure the component name matches the file name
 
 const styles = StyleSheet.create({
   headerRow: {
@@ -120,10 +145,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   todoItem: {
-    backgroundColor: "#E0E0E0",
+    backgroundColor: "rgba(255, 127, 130, 0.26)", // Updated color
     padding: 10,
-    borderRadius: 7,
-    marginVertical: 10,
+    borderRadius: 5,
+    marginVertical: 7, // Reduced margin for better spacing in the list
     marginHorizontal: 10,
   },
   todoRow: {
@@ -135,5 +160,11 @@ const styles = StyleSheet.create({
     flex: 1,
     textDecorationLine: "line-through",
     color: "gray",
+  },
+  todoList: {
+    paddingBottom: 20, // Ensures the last item is fully visible
+  },
+  emptyList: {
+    marginTop: 20,
   },
 });

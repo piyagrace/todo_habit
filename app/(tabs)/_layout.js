@@ -11,41 +11,55 @@ export default function Layout() {
         options={{
           tabBarLabel: "Home",
           tabBarLabelStyle: { color: "#7CB9E8" },
-          headerShown:false,
-          tabBarIcon:({focused}) => 
-          focused? (
-            <FontAwesome name="tasks" size={24} color="#7CB9E8" />
-          ) : (
-            <FontAwesome name="tasks" size={24} color="black" />
-          )
+          headerShown: false,
+          tabBarIcon: ({focused}) => 
+            focused ? (
+              <FontAwesome name="tasks" size={24} color="#ff5a5f" />
+            ) : (
+              <FontAwesome name="tasks" size={24} color="black" />
+            )
         }}
       />
-       <Tabs.Screen
+      <Tabs.Screen
+        name="add"
+        options={{
+          tabBarLabel: "Add",
+          tabBarLabelStyle: { color: "#7CB9E8" },
+          headerShown: false,
+          tabBarIcon: ({focused}) => 
+            focused ? (
+              <MaterialCommunityIcons name="plus-circle" size={24} color="#ff5a5f" />
+            ) : (
+              <MaterialCommunityIcons name="plus-circle" size={24} color="black" />
+            )
+        }}
+      />      
+      <Tabs.Screen
         name="calendar"
         options={{
-          tabBarLabel: "calendar",
+          tabBarLabel: "Calendar",
           tabBarLabelStyle: { color: "#7CB9E8" },
-          headerShown:false,
-          tabBarIcon:({focused}) => 
-          focused? (
-            <AntDesign name="calendar" size={24} color="#7CB9E8" />
-          ) : (
-            <AntDesign name="calendar" size={24} color="black" />
-          )
+          headerShown: false,
+          tabBarIcon: ({focused}) => 
+            focused ? (
+              <AntDesign name="calendar" size={24} color="#ff5a5f" />
+            ) : (
+              <AntDesign name="calendar" size={24} color="black" />
+            )
         }}
       />
-       <Tabs.Screen
+      <Tabs.Screen
         name="profile"
         options={{
-          tabBarLabel: "profile",
+          tabBarLabel: "Profile",
           tabBarLabelStyle: { color: "#7CB9E8" },
-          headerShown:false,
-          tabBarIcon:({focused}) => 
-          focused? (
-            <MaterialCommunityIcons name="account-details" size={24} color="#7CB9E8" />
-          ) : (
-            <MaterialCommunityIcons name="account-details" size={24} color="black" />
-          )
+          headerShown: false,
+          tabBarIcon: ({focused}) => 
+            focused ? (
+              <MaterialCommunityIcons name="account-details" size={24} color="#ff5a5f" />
+            ) : (
+              <MaterialCommunityIcons name="account-details" size={24} color="black" />
+            )
         }}
       />
     </Tabs>

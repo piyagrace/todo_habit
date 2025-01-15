@@ -4,7 +4,6 @@ import { Ionicons, Entypo } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import { SimpleLineIcons } from '@expo/vector-icons';
-import Toggle from '../toggle';
 
 const info = () => {
   const params = useLocalSearchParams();

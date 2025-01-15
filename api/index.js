@@ -29,6 +29,7 @@ app.listen(port, () => {
 
 const User = require("./models/user");
 const Todo = require("./models/todo");
+const Habit = require("./models/habit");
 
 app.post("/register", async (req, res) => {
   try {
@@ -237,3 +238,122 @@ app.get("/users/:userId/todos/count", async (req, res) => {
     res.status(500).json({ error: "Something went wrong" });
   }
 });
+
+app.post("/habits", async (req, res) => {
+  try {
+      const { title, color, repeatMode, days, reminder, userId } = req.body;
+
+      // Validate required fields
+      if (!title || !color || !userId) {
+          return res.status(400).json({ error: "Title, color, and userId are required." });
+      }
+
+      // Validate repeatMode
+      if (!["daily", "weekly"].includes(repeatMode)) {
+          return res.status(400).json({ error: "Invalid repeat mode." });
+      }
+
+      // If repeatMode is weekly, ensure days are provided
+      if (repeatMode === "weekly" && (!days || days.length === 0)) {
+          return res.status(400).json({ error: "Please select at least one day for weekly habits." });
+      }
+
+      // If reminder is enabled, ensure time is provided
+      if (reminder && reminder.enabled && !reminder.time) {
+          return res.status(400).json({ error: "Please provide a reminder time." });
+      }
+
+      const newHabit = new Habit({
+          title,
+          color,
+          repeatMode,
+          days: repeatMode === "weekly" ? days : [],
+          reminder: reminder && reminder.enabled
+              ? {
+                    enabled: true,
+                    time: reminder.time,
+                }
+              : {
+                    enabled: false,
+                    time: null,
+                },
+          user: userId, // Associate habit with userId
+      });
+
+      const savedHabit = await newHabit.save();
+      res.status(201).json(savedHabit);
+  } catch (error) {
+      console.error("Error creating habit:", error);
+      res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+app.get("/habitslist", async (req, res) => {
+  try {
+    const userId = req.query.userId; // Retrieve userId from query parameters
+
+    if (!userId) {
+      return res.status(400).json({ error: "userId is required." });
+    }
+
+    // Validate userId format (optional but recommended)
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: "Invalid userId format." });
+    }
+
+    // Fetch habits specific to the user
+    const userHabits = await Habit.find({ user: userId });
+
+    res.status(200).json(userHabits);
+  } catch (error) {
+    console.error("Error fetching habits:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+app.delete("/habits/:habitId", async (req, res) => {
+  try {
+    const { habitId } = req.params;
+
+    // Validate habitId format
+    if (!mongoose.Types.ObjectId.isValid(habitId)) {
+      return res.status(400).json({ error: "Invalid habitId format." });
+    }
+
+    // Attempt to delete the habit
+    const deletedHabit = await Habit.findByIdAndDelete(habitId);
+
+    // Check if habit was found and deleted
+    if (!deletedHabit) {
+      return res.status(404).json({ error: "Habit not found." });
+    }
+
+    res.status(200).json({ message: "Habit deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting habit:", error);
+    res.status(500).json({ error: "Unable to delete the habit." });
+  }
+});
+
+app.put("/habits/:habitId/completed", async (req, res) => {
+  const habitId = req.params.habitId;
+  const updatedCompletion = req.body.completed; // The updated completion object
+
+  try {
+    const updatedHabit = await Habit.findByIdAndUpdate(
+      habitId,
+      { completed: updatedCompletion },
+      { new: true }
+    );
+
+    if (!updatedHabit) {
+      return res.status(404).json({ error: "Habit not found" });
+    }
+
+    return res.status(200).json(updatedHabit);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+

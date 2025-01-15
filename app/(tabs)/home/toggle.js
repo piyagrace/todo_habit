@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import WeekCalendar from './weekcalendar';
 
 const Toggle = ({ onTabChange }) => {
     const [activeTab, setActiveTab] = useState('todo'); // Assuming 'todo' is the default
@@ -23,7 +24,7 @@ const Toggle = ({ onTabChange }) => {
             >
                 <Text style={[styles.tabText, activeTab === 'habits' && styles.activeTabText]}>Habits</Text>
             </TouchableOpacity>
-        </View>
+        </View>        
     );
 };
 
