@@ -116,13 +116,18 @@ export default WeekCalendar;
 
 const styles = StyleSheet.create({
     container: {
-        height: 85, // Adjusted for larger day containers
+        height: 80, // Adjusted for larger day containers
+        backgroundColor: "#f1ebed",
+        marginBottom: 7,
+        marginTop: 4,
     },
     weekContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-around',
+        justifyContent: 'center',
+        gap: 14,
         width: Dimensions.get('window').width,
         paddingVertical: 10,
+
     },
     dayContainer: {
         width: 40, // Increased width
@@ -130,7 +135,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFFFF',
         alignItems: 'center',
         justifyContent: 'center',
-        marginHorizontal: 5,
         borderRadius: 40, // Fully rounded sides
         borderWidth: 1,
         borderColor: '#ddd', // Light grey border
@@ -141,10 +145,10 @@ const styles = StyleSheet.create({
     },
     todayDayContainer: {
         borderWidth: 2,
-        borderColor: '#ff5a5f', // Highlight today with a blue border
+        borderColor: '#db2859', // Highlight today with a blue border
     },
     dayText: {
-        fontSize: 12, // Larger font size for better visibility
+        fontSize: 13, // Larger font size for better visibility
         color: '#555',
     },
     selectedDayText: {
@@ -152,7 +156,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     todayDayText: {
-        color: '#ff5a5f',
+        color: '#db2859',
         fontWeight: 'bold',
     },
     dateText: {
@@ -164,7 +168,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     todayDateText: {
-        color: '#ff5a5f',
+        color: '#db2859',
         fontWeight: 'bold',
     },
 });

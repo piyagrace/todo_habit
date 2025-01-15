@@ -93,7 +93,6 @@ const Habbitscreen = () => {
     if (selected) {
       console.log("Selected Habit:", selected);
       setSelectedHabit(selected);
-      // Directly show the modal
       setModalVisible(true);
       console.log("Modal visibility set to true");
     } else {
@@ -144,7 +143,6 @@ const Habbitscreen = () => {
 
   const handleUpdate = () => {
     if (selectedHabit && selectedHabit._id) {
-      // Hide the modal first
       setModalVisible(false);
       router.push({
         pathname: "/home/habbit/update",
@@ -235,63 +233,6 @@ const Habbitscreen = () => {
   useEffect(() => {
     console.log("Modal Visibility Changed:", isModalVisible);
   }, [isModalVisible]);
-
-  const renderHeader = () => (
-    <View>
-      <View>
-        <WeekCalendar />
-      </View>
-      <View style={styles.optionContainer}>
-        {["Today", "Weekly", "Overall"].map((opt) => (
-          <Pressable
-            key={opt}
-            onPress={() => setOption(opt)}
-            style={[
-              styles.optionButton,
-              option === opt && styles.selectedOption,
-            ]}
-          >
-            <Text
-              style={[
-                styles.optionText,
-                option === opt && styles.selectedOptionText,
-              ]}
-            >
-              {opt}
-            </Text>
-          </Pressable>
-        ))}
-        <AntDesign
-          onPress={() => router.push("/home/habbit/create")}
-          name="plus"
-          size={24}
-          color="black"
-          style={styles.addIcon}
-        />
-      </View>
-      <Text style={styles.sectionTitle}>Progress</Text>
-      {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
-    </View>
-  );
-
-  const renderEmptyToday = () => (
-    <View style={styles.emptyContainer}>
-      <Image
-        style={styles.emptyImage}
-        source={{
-          uri: "https://cdn-icons-png.flaticon.com/128/10609/10609386.png",
-        }}
-      />
-      <Text style={styles.emptyText}>No habits for today</Text>
-      <Text style={styles.emptyText}>Create one?</Text>
-      <Pressable
-        onPress={() => router.push("/home/habbit/create")}
-        style={styles.createButton}
-      >
-        <Text style={styles.createButtonText}>Create</Text>
-      </Pressable>
-    </View>
-  );
 
   const renderTodayItem = ({ item }) => (
     <Pressable
@@ -398,28 +339,103 @@ const Habbitscreen = () => {
     return habits;
   };
 
+  const renderEmptyToday = () => (
+    <View style={styles.emptyContainer}>
+      <Image
+        style={styles.emptyImage}
+        source={{
+          uri: "https://cdn-icons-png.flaticon.com/128/10609/10609386.png",
+        }}
+      />
+      <Text style={styles.emptyText}>No habits for today</Text>
+      <Text style={styles.emptyText}>Create one?</Text>
+      <Pressable
+        onPress={() => router.push("/home/habbit/create")}
+        style={styles.createButton}
+      >
+        <Text style={styles.createButtonText}>Create</Text>
+      </Pressable>
+    </View>
+  );
+
   const getEmptyComponent = () => {
+    // Only show "No habits for today" screen for the Today option
     if (option === "Today") {
       return renderEmptyToday();
     }
     return null;
   };
 
+  /**
+   * We separate the top (WeekCalendar and the option tabs) from the portion
+   * that begins at "Progress". The top portion is non-scrollable, and everything
+   * from "Progress" downward is rendered in the FlatList (which is scrollable).
+   */
+  const renderStaticTop = () => {
+    return (
+      <View style={styles.staticTopContainer}>
+        <WeekCalendar />
+      </View>
+    );
+  };
+
+  /**
+   * This is used as the FlatList's ListHeaderComponent,
+   * so that scrolling *starts* at the "Progress" title.
+   */
+  const renderListHeader = () => (
+    <View style={styles.listHeaderContainer}>
+            <View style={styles.optionContainer}>
+          {["Today", "Weekly", "Overall"].map((opt) => (
+            <Pressable
+              key={opt}
+              onPress={() => setOption(opt)}
+              style={[
+                styles.optionButton,
+                option === opt && styles.selectedOption,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.optionText,
+                  option === opt && styles.selectedOptionText,
+                ]}
+              >
+                {opt}
+              </Text>
+            </Pressable>
+          ))}
+          <AntDesign
+            onPress={() => router.push("/home/habbit/create")}
+            name="plus"
+            size={24}
+            color="black"
+            style={styles.addIcon}
+          />
+        </View>
+      <Text style={styles.sectionTitle}>Progress</Text>
+      {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
+    </View>
+  );
+
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.container}>
+      {/* Top portion that remains static */}
+      {renderStaticTop()}
+
+      {/* Now the FlatList (scrollable) starts at the "Progress" title */}
       <FlatList
         data={getData()}
         keyExtractor={(item) => item._id}
         renderItem={getRenderItem()}
-        ListHeaderComponent={renderHeader}
+        ListHeaderComponent={renderListHeader}
         ListEmptyComponent={getEmptyComponent()}
         contentContainerStyle={{ paddingBottom: 20 }}
       />
 
-      {/* Conditionally render the BottomModal */}
+      {/* BottomModal for habit actions */}
       {isModalVisible && (
         <BottomModal
-          // If you see the modal auto-dismiss, consider removing or adjusting:
           onBackdropPress={() => setModalVisible(false)}
           swipeDirection={["up", "down"]}
           swipeThreshold={200}
@@ -436,16 +452,12 @@ const Habbitscreen = () => {
           }
           visible={isModalVisible}
           onTouchOutside={() => setModalVisible(false)}
-          // You could add modalStyle={{ zIndex: 9999 }} if needed
         >
           <ModalContent style={styles.modalContent}>
             {/* Completed Option */}
             <Pressable
               onPress={handleCompletion}
-              style={[
-                styles.modalOption,
-                isDeleting && styles.disabledOption,
-              ]}
+              style={[styles.modalOption, isDeleting && styles.disabledOption]}
               disabled={isDeleting}
             >
               <Ionicons
@@ -486,10 +498,7 @@ const Habbitscreen = () => {
             {/* Delete Option */}
             <Pressable
               onPress={deleteHabit}
-              style={[
-                styles.modalOption,
-                isDeleting && styles.disabledOption,
-              ]}
+              style={[styles.modalOption, isDeleting && styles.disabledOption]}
               disabled={isDeleting}
             >
               <AntDesign
@@ -511,25 +520,15 @@ export default Habbitscreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f2f2f2",
-    padding: 10,
+    backgroundColor: "#f1ebed",
   },
-  headerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  backIcon: {
-    marginRight: 10,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    flexShrink: 1,
+  // The static top portion
+  staticTopContainer: {
+    // You can style this if you need a background/color for the top area
   },
   optionContainer: {
-    marginHorizontal: 10,
-    marginVertical: 2,
+    marginHorizontal: 9,
+    marginBottom: 13,
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
@@ -538,27 +537,43 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 25,
+    borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
   },
   selectedOption: {
-    backgroundColor: '#ff5a5f',
+    backgroundColor: "#db2859",
   },
   optionText: {
     color: "black",
-    fontSize: 13
+    fontSize: 14,
   },
   selectedOptionText: {
-    color: "white"
+    color: "white",
   },
   addIcon: {
     marginLeft: "auto",
+    marginRight: 10,
   },
+
+  // List header (where "Progress" and ActivityIndicator appear)
+  listHeaderContainer: {
+    paddingHorizontal: 15,
+    backgroundColor: "#f1ebed",
+  },
+  sectionTitle: {
+    fontSize: 17,
+    fontWeight: "600",
+    marginBottom: 8,
+    marginTop: 5,
+    marginHorizontal: 10
+  },
+
   habitCard: {
-    marginVertical: 10,
-    padding: 15,
-    borderRadius: 24,
+    marginVertical: 7,
+    marginHorizontal: 23,
+    padding: 11,
+    borderRadius: 10,
     justifyContent: "center",
   },
   pressedHabitCard: {
@@ -570,14 +585,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   habitTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "500",
     color: "white",
-    textAlign:'left'
-  },
-  modalTitleStyle: {
-  alignItems: "center",
-  width: '100%',
+    textAlign: "center",
   },
   habitRepeatMode: {
     fontSize: 14,
@@ -640,6 +651,11 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     color: "#555",
   },
+
+  modalTitleStyle: {
+    alignItems: "center",
+    width: "100%",
+  },
   modalContent: {
     width: "100%",
     height: 180,
@@ -666,9 +682,4 @@ const styles = StyleSheet.create({
   disabledOption: {
     opacity: 0.5,
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginTop: 10,
-  }
 });

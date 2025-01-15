@@ -132,7 +132,7 @@ const ProfileScreen = () => {
         yAxisInterval={2}
         chartConfig={{
           backgroundColor: "white",
-          backgroundGradientFrom: "#ff5a5f",
+          backgroundGradientFrom: "#db2859",
           backgroundGradientTo: "white",
           decimalPlaces: 0,
           color: (opacity = 1) => `black`,
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 10,
     flex: 1,
-    backgroundColor: "#f2f2f2",
+    backgroundColor: "#f1ebed",
   },
   headerRow: {
     flexDirection: "row",

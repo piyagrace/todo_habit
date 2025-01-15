@@ -1,66 +1,69 @@
 import { Tabs } from "expo-router";
-import { FontAwesome } from '@expo/vector-icons';
-import { AntDesign } from '@expo/vector-icons';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Feather } from "@expo/vector-icons";
 
 export default function Layout() {
   return (
-    <Tabs>
+    <Tabs
+    screenOptions={{
+      tabBarStyle: {
+        height: 67,  // Increase the height of the tab bar
+        paddingTop: 11, // Optionally add padding to center icons and labels vertically
+        paddingBottom: 11, // Adjust according to your design needs
+        backgroundColor: '#ffffff' // Set background color if needed
+      }
+    }}
+    >
       <Tabs.Screen
         name="home"
-        options={{
+        options={({ navigation }) => ({
           tabBarLabel: "Home",
-          tabBarLabelStyle: { color: "black" },
+          tabBarLabelStyle: {
+            color: navigation.isFocused() ? "#db2859" : "#a0a0a0"
+          },
           headerShown: false,
-          tabBarIcon: ({focused}) => 
-            focused ? (
-              <FontAwesome name="tasks" size={24} color="#ff5a5f" />
-            ) : (
-              <FontAwesome name="tasks" size={24} color="black" />
-            )
-        }}
+          tabBarIcon: ({ focused }) => (
+            <Feather name="home" size={25} color={focused ? "#db2859" : "#a0a0a0"} />
+          )
+        })}
       />
       <Tabs.Screen
         name="add"
-        options={{
+        options={({ navigation }) => ({
           tabBarLabel: "Add",
-          tabBarLabelStyle: { color: "black" },
+          tabBarLabelStyle: {
+            color: navigation.isFocused() ? "#db2859" : "#a0a0a0"
+          },
           headerShown: false,
-          tabBarIcon: ({focused}) => 
-            focused ? (
-              <MaterialCommunityIcons name="plus-circle" size={24} color="#ff5a5f" />
-            ) : (
-              <MaterialCommunityIcons name="plus-circle" size={24} color="black" />
-            )
-        }}
-      />      
+          tabBarIcon: ({ focused }) => (
+            <Feather name="plus-circle" size={25} color={focused ? "#db2859" : "#a0a0a0"} />
+          )
+        })}
+      />
       <Tabs.Screen
         name="calendar"
-        options={{
+        options={({ navigation }) => ({
           tabBarLabel: "Calendar",
-          tabBarLabelStyle: { color: "black" },
+          tabBarLabelStyle: {
+            color: navigation.isFocused() ? "#db2859" : "#a0a0a0"
+          },
           headerShown: false,
-          tabBarIcon: ({focused}) => 
-            focused ? (
-              <AntDesign name="calendar" size={24} color="#ff5a5f" />
-            ) : (
-              <AntDesign name="calendar" size={24} color="black" />
-            )
-        }}
+          tabBarIcon: ({ focused }) => (
+            <Feather name="calendar" size={25} color={focused ? "#db2859" : "#a0a0a0"} />
+          )
+        })}
       />
       <Tabs.Screen
         name="profile"
-        options={{
+        options={({ navigation }) => ({
           tabBarLabel: "Profile",
-          tabBarLabelStyle: { color: "black" },
+          tabBarLabelStyle: {
+            color: navigation.isFocused() ? "#db2859" : "#a0a0a0"
+          },
           headerShown: false,
-          tabBarIcon: ({focused}) => 
-            focused ? (
-              <MaterialCommunityIcons name="account-details" size={24} color="#ff5a5f" />
-            ) : (
-              <MaterialCommunityIcons name="account-details" size={24} color="black" />
-            )
-        }}
+          tabBarIcon: ({ focused }) => (
+            <Feather name="user" size={25} color={focused ? "#db2859" : "#a0a0a0"} />
+          )
+        })}
       />
     </Tabs>
   );

@@ -158,6 +158,7 @@ const Todo = () => {
       {/* Category Filters and Add Button */}
 
       <View><WeekCalendar /></View>
+      <ScrollView style={styles.scrollView}>
       <View style={styles.categoryContainer}>
         {["All", "Work", "Personal"].map((cat) => (
           <Pressable
@@ -178,19 +179,16 @@ const Todo = () => {
             </Text>
           </Pressable>
         ))}
-        <Pressable onPress={() => setModalVisible(true)}>
-          <AntDesign name="pluscircle" size={30} color="#ff5a5f" />
-        </Pressable>
+          <AntDesign onPress={() => setModalVisible(true)} name="plus" size={24} color="black" style={styles.addIcon} />
       </View>
 
       {/* Todos List */}
-      <ScrollView style={styles.scrollView}>
         <View style={styles.todosContainer}>
           {todos.length > 0 ? (
             <View>
               {/* Pending Todos */}
               {pendingTodos.length > 0 && (
-                <Text style={styles.sectionTitle}>Tasks to Do! {today}</Text>
+                <Text style={styles.sectionTitle}>Ongoing Tasks!</Text>
               )}
 
               {pendingTodos.map((item) => (
@@ -207,7 +205,7 @@ const Todo = () => {
                       onPress={() => markTodoAsCompleted(item._id)}
                     />
                     <Text style={styles.todoTitle}>{item.title}</Text>
-                    <Feather name="flag" size={20} color="black" />
+                    <Feather name="flag" size={15} color="black" />
                   </View>
                 </Pressable>
               ))}
@@ -216,20 +214,8 @@ const Todo = () => {
               {completedTodos.length > 0 && (
                 <View>
                   <View style={styles.completedHeader}>
-                    <Image
-                      style={styles.completedImage}
-                      source={{
-                        uri: "https://cdn-icons-png.flaticon.com/128/6784/6784655.png",
-                      }}
-                    />
-                  </View>
-
-                  <View style={styles.completedHeader}>
                     <Text style={styles.sectionTitle}>Completed Tasks</Text>
-                    <MaterialIcons
-                      name="arrow-drop-down"
-                      size={24}
-                      color="black"
+                    <MaterialIcons name="arrow-drop-down" size={24} color="black"
                     />
                   </View>
 
@@ -348,10 +334,12 @@ export default Todo;
 
 const styles = StyleSheet.create({
   categoryContainer: {
-    marginHorizontal: 10,
+    marginHorizontal: 25,
+    backgroundColor: "#f1ebed",
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
+    marginBottom: 3,
   },
   categoryButton: {
     backgroundColor: "white",
@@ -362,12 +350,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   activeCategoryButton: {
-    backgroundColor: '#ff5a5f',
+    backgroundColor: '#db2859',
   },
   categoryText: {
     color: "black",
     textAlign: "center",
-    fontSize: 13
+    fontSize: 14
   },
   activeCategoryText: {
     fontWeight: "bold",
@@ -375,7 +363,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    backgroundColor: "#f2f2f2",
+    backgroundColor: "#f1ebed",
   },
   togglebutton: {
     backgroundColor: "#f2f2f2",
@@ -384,15 +372,18 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: "600",
-    marginTop: 10,
+    marginTop: 9,
+    marginBottom: 8,
+    marginHorizontal: 15
   },
   todoBox: {
     backgroundColor: "white",
     padding: 10,
-    borderRadius: 7,
-    marginVertical: 10,
+    borderRadius: 10,
+    marginVertical: 7,
+    marginHorizontal: 15
   },
   todoRow: {
     flexDirection: "row",
@@ -401,28 +392,27 @@ const styles = StyleSheet.create({
   },
   todoTitle: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 15,
   },
   completedHeader: {
-    justifyContent: "center",
-    alignItems: "center",
-    margin: 10,
-  },
-  completedImage: {
-    width: 100,
-    height: 100,
+    flexDirection: 'row',  // Ensure items are laid out horizontally
+    alignItems: 'center',  // Align items vertically in the center
+    marginTop: 7,
+    gap: 3,
+    justifyContent: 'left', // Spread the items across the space
   },
   completedTodoBox: {
     backgroundColor: "white",
     padding: 10,
-    borderRadius: 7,
-    marginVertical: 10,
+    borderRadius: 10,
+    marginVertical: 7,
+    marginHorizontal: 15
   },
   completedTodoTitle: {
     flex: 1,
     textDecorationLine: "line-through",
     color: "gray",
-    fontSize: 16,
+    fontSize: 15,
   },
   chartStyle: {
     borderRadius: 16,
@@ -532,4 +522,8 @@ const styles = StyleSheet.create({
   suggestionText: {
     textAlign: "center",
   },
+  addIcon: {
+    marginLeft: "auto",
+    marginRight: 10,
+  }
 });

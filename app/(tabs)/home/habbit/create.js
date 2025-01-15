@@ -43,13 +43,13 @@ const create = () => {
   const amPmOptions = ["AM", "PM"];
 
   const colors = [
-      "#FF5733", // Red
-      "#FFD700", // Gold
-      "#5D76A9",
-      "#1877F2", // Medium Purple
-      "#32CD32", // Lime Green
-      "#CCCCFF", // Tomato
-      "#4169E1", // Royal Blue
+      "rgba(245, 112, 112, 255)", // Red
+      "rgba(245, 224, 105, 255)", // Gold
+      "rgba(93, 118, 169, 255)",
+      "rgba(96, 159, 242, 255)", 
+      "rgba(106, 236, 106, 255)", 
+      "#ccccff",
+      "rgba(237, 171, 113, 255)",
   ];
 
   const days = ["Su", "M", "T", "W", "Th", "F", "Sa"];

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import WeekCalendar from './weekcalendar';
 
 const Toggle = ({ onTabChange }) => {
     const [activeTab, setActiveTab] = useState('todo'); // Assuming 'todo' is the default
@@ -39,8 +38,8 @@ const styles = StyleSheet.create({
         padding: 2, // Reduced overall padding for a slimmer look
         width: 'auto', // Set a specific width to make the tabs wider
         alignSelf: 'center',
-        marginBottom: 5,
-        marginTop: 10,
+        marginBottom: 7,
+        marginTop: 17,
         shadowColor: '#000', // Optional: Add shadow for a subtle depth effect
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
@@ -58,7 +57,7 @@ const styles = StyleSheet.create({
         marginVertical: 1 // Ensure there's a slight space between the tabs
     },
     activeTab: {
-        backgroundColor: '#ff5a5f',
+        backgroundColor: '#db2859',
     },
     tabText: {
         fontWeight: 'bold',

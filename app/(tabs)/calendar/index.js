@@ -75,32 +75,35 @@ const index = () => { // Capitalized component name for convention
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "white" }}>
+    <View style={{ flex: 1, backgroundColor: "#f1ebed" }}>
       {/* Calendar Component */}
       <Calendar
         onDayPress={handleDayPress}
         markedDates={{
           [selectedDate]: {
             selected: true,
-            selectedColor: "#ff5a5f",
+            selectedColor: "#db2859",
           },
         }}
         theme={{
-          selectedDayBackgroundColor: "#ff5a5f",
+          calendarBackground: '#f1ebed',
+          selectedDayBackgroundColor: "#db2859",
           selectedDayTextColor: "#ffffff",
-          todayTextColor: "#ff5a5f",
-          arrowColor: "#ff5a5f",
+          todayTextColor: "#db2859",
+          arrowColor: "#db2859",
+          monthTextColor: 'black', 
+          textSectionTitleColor: '#b6c1cd'
           // Additional theme customizations if needed
         }}
       />
 
       {/* Spacer */}
-      <View style={{ height: 20 }} />
+      <View style={{ height: 10 }} />
 
       {/* Completed Tasks Header */}
       <View style={styles.headerRow}>
         <Text style={{ fontSize: 18, fontWeight: "bold" }}>Completed Tasks</Text>
-        <MaterialIcons name="arrow-drop-down" size={24} color="black" />
+        <MaterialIcons name="arrow-drop-down" size={22} color="black" />
       </View>
 
       {/* Divider */}
@@ -141,13 +144,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
-    marginVertical: 10,
+    marginVertical: 6,
     marginHorizontal: 10,
   },
   todoItem: {
-    backgroundColor: "rgba(255, 127, 130, 0.26)", // Updated color
+    backgroundColor: "white", // Updated color
     padding: 10,
     borderRadius: 5,
+    marginTop: 10,
     marginVertical: 7, // Reduced margin for better spacing in the list
     marginHorizontal: 10,
   },
