@@ -179,7 +179,7 @@ const Todo = () => {
           </Pressable>
         ))}
         <Pressable onPress={() => setModalVisible(true)}>
-          <AntDesign name="pluscircle" size={30} color="#007FFF" />
+          <AntDesign name="pluscircle" size={30} color="#ff5a5f" />
         </Pressable>
       </View>
 

@@ -10,6 +10,7 @@ export default function Layout(){
         <Stack>
             <Stack.Screen name="habbitscreen" options={{headerShown:false}}/>
             <Stack.Screen name="create" options={{headerShown:false}}/>
+            <Stack.Screen name="update" options={{headerShown:false}}/>
         </Stack>
         <ModalPortal/>
         </>

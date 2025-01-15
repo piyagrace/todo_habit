@@ -356,4 +356,60 @@ app.put("/habits/:habitId/completed", async (req, res) => {
   }
 });
 
+// GET single habit
+app.get("/habits/:habitId", async (req, res) => {
+  try {
+    const { habitId } = req.params;
+    const habit = await Habit.findById(habitId);
+    if (!habit) {
+      return res.status(404).json({ error: "Habit not found." });
+    }
+    res.status(200).json(habit);
+  } catch (error) {
+    console.error("Error fetching single habit:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+// PUT update habit
+app.put("/habits/:habitId", async (req, res) => {
+  try {
+    const { habitId } = req.params;
+    const {
+      title,
+      color,
+      repeatMode,
+      days,
+      reminder,
+      userId, // if your logic requires validating the user
+    } = req.body;
+
+    // (Optional) Validate or check if the habit belongs to userId
+    // e.g. const habit = await Habit.findOne({ _id: habitId, user: userId });
+
+    const updatedHabit = await Habit.findByIdAndUpdate(
+      habitId,
+      {
+        title,
+        color,
+        repeatMode,
+        days: repeatMode === "weekly" ? days : [],
+        reminder,
+        // etc.
+      },
+      { new: true } // return the updated doc
+    );
+
+    if (!updatedHabit) {
+      return res.status(404).json({ error: "Habit not found or not yours." });
+    }
+
+    res.status(200).json(updatedHabit);
+  } catch (error) {
+    console.error("Error updating habit:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+
 

@@ -10,7 +10,7 @@ export default function Layout() {
         name="home"
         options={{
           tabBarLabel: "Home",
-          tabBarLabelStyle: { color: "#7CB9E8" },
+          tabBarLabelStyle: { color: "black" },
           headerShown: false,
           tabBarIcon: ({focused}) => 
             focused ? (
@@ -24,7 +24,7 @@ export default function Layout() {
         name="add"
         options={{
           tabBarLabel: "Add",
-          tabBarLabelStyle: { color: "#7CB9E8" },
+          tabBarLabelStyle: { color: "black" },
           headerShown: false,
           tabBarIcon: ({focused}) => 
             focused ? (
@@ -38,7 +38,7 @@ export default function Layout() {
         name="calendar"
         options={{
           tabBarLabel: "Calendar",
-          tabBarLabelStyle: { color: "#7CB9E8" },
+          tabBarLabelStyle: { color: "black" },
           headerShown: false,
           tabBarIcon: ({focused}) => 
             focused ? (
@@ -52,7 +52,7 @@ export default function Layout() {
         name="profile"
         options={{
           tabBarLabel: "Profile",
-          tabBarLabelStyle: { color: "#7CB9E8" },
+          tabBarLabelStyle: { color: "black" },
           headerShown: false,
           tabBarIcon: ({focused}) => 
             focused ? (

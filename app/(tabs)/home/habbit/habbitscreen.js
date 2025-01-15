@@ -1,5 +1,3 @@
-// app/Habbitscreen.js
-
 import {
   StyleSheet,
   Text,
@@ -30,7 +28,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import WeekCalendar from "../weekcalendar";
 
 const Habbitscreen = () => {
-  // State variables
   const [option, setOption] = useState("Today");
   const router = useRouter();
   const [habits, setHabits] = useState([]);
@@ -41,14 +38,11 @@ const Habbitscreen = () => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const isFocused = useIsFocused();
-
   const currentDay = new Date()
     .toLocaleDateString("en-US", { weekday: "short" })
     .slice(0, 3);
-
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-  // Initialize userId and fetch habits
   useEffect(() => {
     const initialize = async () => {
       try {
@@ -70,7 +64,6 @@ const Habbitscreen = () => {
     initialize();
   }, []);
 
-  // Re-fetch data whenever screen is focused
   useEffect(() => {
     if (isFocused && userId) {
       console.log("Screen is focused. Fetching habits.");
@@ -78,7 +71,6 @@ const Habbitscreen = () => {
     }
   }, [isFocused, userId]);
 
-  // Function to fetch habits based on userId
   const fetchHabits = async (userIdParam) => {
     try {
       setIsLoading(true);
@@ -95,13 +87,13 @@ const Habbitscreen = () => {
     }
   };
 
-  // Handle press on a habit item
   const handlePress = (habitId) => {
     console.log("Pressed Habit ID:", habitId);
     const selected = habits.find((habit) => habit._id === habitId);
     if (selected) {
       console.log("Selected Habit:", selected);
       setSelectedHabit(selected);
+      // Directly show the modal
       setModalVisible(true);
       console.log("Modal visibility set to true");
     } else {
@@ -110,16 +102,14 @@ const Habbitscreen = () => {
     }
   };
 
-  // Handle habit completion
   const handleCompletion = async () => {
     try {
       if (!selectedHabit) {
         Alert.alert("Error", "No habit selected.");
         return;
       }
-
       const habitId = selectedHabit._id;
-      console.log("Attempting to mark as completed habit ID:", habitId);
+      console.log("Attempting to mark completed for habit ID:", habitId);
 
       const updatedCompletion = {
         ...selectedHabit.completed,
@@ -128,9 +118,7 @@ const Habbitscreen = () => {
 
       const response = await axios.put(
         `http://192.168.1.50:3001/habits/${habitId}/completed`,
-        {
-          completed: updatedCompletion,
-        }
+        { completed: updatedCompletion }
       );
 
       if (response.status === 200) {
@@ -154,16 +142,27 @@ const Habbitscreen = () => {
     }
   };
 
-  // Handle habit deletion with confirmation
+  const handleUpdate = () => {
+    if (selectedHabit && selectedHabit._id) {
+      // Hide the modal first
+      setModalVisible(false);
+      router.push({
+        pathname: "/home/habbit/update",
+        query: { habitId: selectedHabit._id },
+      });
+    } else {
+      Alert.alert("Error", "No habit selected.");
+    }
+  };
+
   const deleteHabit = () => {
     if (!selectedHabit) {
       Alert.alert("Error", "No habit selected for deletion.");
       return;
     }
-
     Alert.alert(
       "Confirm Deletion",
-      `Are you sure you want to delete the habit "${selectedHabit.title}"?`,
+      `Are you sure you want to delete "${selectedHabit.title}"?`,
       [
         { text: "Cancel", style: "cancel" },
         {
@@ -174,11 +173,9 @@ const Habbitscreen = () => {
               const habitId = selectedHabit._id;
               console.log("Attempting to delete habit with ID:", habitId);
               setIsDeleting(true);
-
               const response = await axios.delete(
                 `http://192.168.1.50:3001/habits/${habitId}`
               );
-
               if (response.status === 200) {
                 console.log("Habit deleted successfully:", response.data);
                 await fetchHabits(userId);
@@ -210,10 +207,7 @@ const Habbitscreen = () => {
                   "No response from server. Please try again later."
                 );
               } else {
-                Alert.alert(
-                  "Deletion Failed",
-                  "An unexpected error occurred."
-                );
+                Alert.alert("Deletion Failed", "An unexpected error occurred.");
               }
             } finally {
               setIsDeleting(false);
@@ -224,7 +218,6 @@ const Habbitscreen = () => {
     );
   };
 
-  // Retrieve completed days from habit's completion object
   const getCompletedDays = (completedObj) => {
     if (completedObj && typeof completedObj === "object") {
       return Object.keys(completedObj).filter((day) => completedObj[day]);
@@ -232,29 +225,22 @@ const Habbitscreen = () => {
     return [];
   };
 
-  // Filter habits based on the selected option
   const filteredHabits = habits.filter((habit) => {
     if (option === "Today") {
-      // For "Today", show habits that are not completed today
       return !habit.completed || !habit.completed[currentDay];
     }
-    return true; // For other options, show all habits
+    return true;
   });
 
-  // Log changes to isModalVisible
   useEffect(() => {
     console.log("Modal Visibility Changed:", isModalVisible);
   }, [isModalVisible]);
 
-  // Render Header and Option Selector as ListHeaderComponent
   const renderHeader = () => (
     <View>
-      {/* Header with Back Button */}
-      <View style>
-      <WeekCalendar />
+      <View>
+        <WeekCalendar />
       </View>
-
-      {/* Option Selector */}
       <View style={styles.optionContainer}>
         {["Today", "Weekly", "Overall"].map((opt) => (
           <Pressable
@@ -264,8 +250,6 @@ const Habbitscreen = () => {
               styles.optionButton,
               option === opt && styles.selectedOption,
             ]}
-            accessibilityLabel={`Select ${opt} view`}
-            accessible={true}
           >
             <Text
               style={[
@@ -283,18 +267,13 @@ const Habbitscreen = () => {
           size={24}
           color="black"
           style={styles.addIcon}
-          accessibilityLabel="Add new habit"
-          accessible={true}
         />
       </View>
-      
       <Text style={styles.sectionTitle}>Progress</Text>
-      {/* Loading Indicator */}
       {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
     </View>
   );
 
-  // Render Empty Component for "Today" Option
   const renderEmptyToday = () => (
     <View style={styles.emptyContainer}>
       <Image
@@ -308,15 +287,12 @@ const Habbitscreen = () => {
       <Pressable
         onPress={() => router.push("/home/habbit/create")}
         style={styles.createButton}
-        accessibilityLabel="Create a new habit"
-        accessible={true}
       >
         <Text style={styles.createButtonText}>Create</Text>
       </Pressable>
     </View>
   );
 
-  // Render Habit Item for "Today" Option
   const renderTodayItem = ({ item }) => (
     <Pressable
       onPress={() => handlePress(item._id)}
@@ -325,14 +301,11 @@ const Habbitscreen = () => {
         { backgroundColor: item.color },
         pressed && styles.pressedHabitCard,
       ]}
-      accessibilityLabel={`Habit: ${item.title}`}
-      accessible={true}
     >
       <Text style={styles.habitTitle}>{item.title}</Text>
     </Pressable>
   );
 
-  // Render Habit Item for "Weekly" Option
   const renderWeeklyItem = ({ item }) => (
     <Pressable
       onPress={() => handlePress(item._id)}
@@ -341,14 +314,11 @@ const Habbitscreen = () => {
         { backgroundColor: item.color },
         pressed && styles.pressedHabitCard,
       ]}
-      accessibilityLabel={`Habit: ${item.title}`}
-      accessible={true}
     >
       <View style={styles.habitHeader}>
         <Text style={styles.habitTitle}>{item.title}</Text>
         <Text style={styles.habitRepeatMode}>{item.repeatMode}</Text>
       </View>
-
       <View style={styles.daysContainer}>
         {days.map((day) => {
           const isCompleted = item.completed && item.completed[day];
@@ -384,7 +354,6 @@ const Habbitscreen = () => {
     </Pressable>
   );
 
-  // Render Habit Item for "Overall" Option
   const renderOverallItem = ({ item }) => (
     <View>
       <Pressable
@@ -394,15 +363,12 @@ const Habbitscreen = () => {
           { backgroundColor: item.color },
           pressed && styles.pressedHabitCard,
         ]}
-        accessibilityLabel={`Habit: ${item.title}`}
-        accessible={true}
       >
         <View style={styles.habitHeader}>
           <Text style={styles.habitTitle}>{item.title}</Text>
           <Text style={styles.habitRepeatMode}>{item.repeatMode}</Text>
         </View>
       </Pressable>
-
       <View style={styles.completedContainer}>
         <Text style={styles.completedLabel}>Completed On:</Text>
         <Text style={styles.completedDays}>
@@ -412,7 +378,6 @@ const Habbitscreen = () => {
     </View>
   );
 
-  // Determine which renderItem to use based on the selected option
   const getRenderItem = () => {
     switch (option) {
       case "Today":
@@ -426,7 +391,6 @@ const Habbitscreen = () => {
     }
   };
 
-  // Determine the data to display based on the selected option
   const getData = () => {
     if (option === "Today") {
       return filteredHabits;
@@ -434,7 +398,6 @@ const Habbitscreen = () => {
     return habits;
   };
 
-  // Determine the empty component based on the selected option
   const getEmptyComponent = () => {
     if (option === "Today") {
       return renderEmptyToday();
@@ -453,61 +416,92 @@ const Habbitscreen = () => {
         contentContainerStyle={{ paddingBottom: 20 }}
       />
 
-      {/* Bottom Modal for Habit Options */}
-      <BottomModal
-        onBackdropPress={() => setModalVisible(false)}
-        onHardwareBackPress={() => setModalVisible(false)}
-        swipeDirection={["up", "down"]}
-        swipeThreshold={200}
-        modalTitle={<ModalTitle title="Choose Option" />}
-        modalAnimation={
-          new SlideAnimation({
-            slideFrom: "bottom",
-          })
-        }
-        visible={isModalVisible}
-        onTouchOutside={() => setModalVisible(false)}
-      >
-        <ModalContent style={styles.modalContent}>
-          {/* Completed Option */}
-          <Pressable
-            onPress={handleCompletion}
-            style={[
-              styles.modalOption,
-              isDeleting && styles.disabledOption,
-            ]}
-            accessibilityLabel="Mark as completed"
-            accessible={true}
-            disabled={isDeleting}
-          >
-            <Ionicons
-              name="checkmark-circle-outline"
-              size={24}
-              color={isDeleting ? "gray" : "black"}
+      {/* Conditionally render the BottomModal */}
+      {isModalVisible && (
+        <BottomModal
+          // If you see the modal auto-dismiss, consider removing or adjusting:
+          onBackdropPress={() => setModalVisible(false)}
+          swipeDirection={["up", "down"]}
+          swipeThreshold={200}
+          modalTitle={
+            <ModalTitle
+              title={selectedHabit ? selectedHabit.title : "Habbit Title"}
+              style={styles.modalTitleStyle}
             />
-            <Text style={styles.modalOptionText}>Completed</Text>
-          </Pressable>
+          }
+          modalAnimation={
+            new SlideAnimation({
+              slideFrom: "bottom",
+            })
+          }
+          visible={isModalVisible}
+          onTouchOutside={() => setModalVisible(false)}
+          // You could add modalStyle={{ zIndex: 9999 }} if needed
+        >
+          <ModalContent style={styles.modalContent}>
+            {/* Completed Option */}
+            <Pressable
+              onPress={handleCompletion}
+              style={[
+                styles.modalOption,
+                isDeleting && styles.disabledOption,
+              ]}
+              disabled={isDeleting}
+            >
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={24}
+                color={isDeleting ? "gray" : "black"}
+              />
+              <Text style={styles.modalOptionText}>Completed</Text>
+            </Pressable>
 
-          {/* Delete Option */}
-          <Pressable
-            onPress={deleteHabit}
-            style={[
-              styles.modalOption,
-              isDeleting && styles.disabledOption,
-            ]}
-            accessibilityLabel="Delete habit"
-            accessible={true}
-            disabled={isDeleting}
-          >
-            <AntDesign
-              name="delete"
-              size={24}
-              color={isDeleting ? "gray" : "black"}
-            />
-            <Text style={styles.modalOptionText}>Delete</Text>
-          </Pressable>
-        </ModalContent>
-      </BottomModal>
+            {/* Skip Option */}
+            <Pressable
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 12,
+                marginTop: 10,
+              }}
+            >
+              <Feather name="skip-forward" size={24} color="black" />
+              <Text>Skip</Text>
+            </Pressable>
+
+            {/* Edit Option */}
+            <Pressable
+              onPress={handleUpdate}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 12,
+                marginTop: 12,
+              }}
+            >
+              <Feather name="edit-2" size={24} color="black" />
+              <Text>Edit</Text>
+            </Pressable>
+
+            {/* Delete Option */}
+            <Pressable
+              onPress={deleteHabit}
+              style={[
+                styles.modalOption,
+                isDeleting && styles.disabledOption,
+              ]}
+              disabled={isDeleting}
+            >
+              <AntDesign
+                name="delete"
+                size={24}
+                color={isDeleting ? "gray" : "black"}
+              />
+              <Text style={styles.modalOptionText}>Delete</Text>
+            </Pressable>
+          </ModalContent>
+        </BottomModal>
+      )}
     </View>
   );
 };
@@ -579,6 +573,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "500",
     color: "white",
+    textAlign:'left'
+  },
+  modalTitleStyle: {
+  alignItems: "center",
+  width: '100%',
   },
   habitRepeatMode: {
     fontSize: 14,
@@ -643,7 +642,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: "100%",
-    height: 150,
+    height: 180,
     padding: 20,
     backgroundColor: "#fff",
     borderTopLeftRadius: 20,

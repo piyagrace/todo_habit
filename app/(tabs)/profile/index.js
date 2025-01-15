@@ -13,6 +13,7 @@ import { LineChart } from "react-native-chart-kit";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useIsFocused } from "@react-navigation/native";
+import { Ionicons, } from "@expo/vector-icons";
 
 const ProfileScreen = () => {
   const [userName, setUserName] = useState(""); // <-- Store user's name
@@ -85,11 +86,10 @@ const ProfileScreen = () => {
     <View style={styles.container}>
       {/* Header Section */}
       <View style={styles.headerRow}>
-        <Image
-          style={styles.profileImage}
-          source={{
-            uri: "https://lh3.googleusercontent.com/ogw/ANLem4Zmk7fohWyH7kB6YArqFy0WMfXnFtuX3PX3LSBf=s64-c-mo",
-          }}
+        <Ionicons
+          name="person-circle-outline"
+          size={60}
+          color={"black"}
         />
         <View>
           {/* Display user's name here */}
@@ -131,19 +131,19 @@ const ProfileScreen = () => {
         height={220}
         yAxisInterval={2}
         chartConfig={{
-          backgroundColor: "#e26a00",
-          backgroundGradientFrom: "#fb8c00",
-          backgroundGradientTo: "#ffa726",
+          backgroundColor: "white",
+          backgroundGradientFrom: "#ff5a5f",
+          backgroundGradientTo: "white",
           decimalPlaces: 0,
-          color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+          color: (opacity = 1) => `black`,
+          labelColor: (opacity = 1) => `black`,
           style: {
             borderRadius: 16,
           },
           propsForDots: {
             r: "6",
             strokeWidth: "2",
-            stroke: "#ffa726",
+            stroke: "black",
           },
         }}
         bezier
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 10,
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: "#f2f2f2",
   },
   headerRow: {
     flexDirection: "row",
@@ -196,13 +196,13 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   logoutButton: {
-    backgroundColor: "#7CB9E8",
+    backgroundColor: "#ff5a5f",
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 25,
     alignItems: "center",
     justifyContent: "center",
-    marginLeft: "auto",
+    marginLeft: 70,
   },
   logoutButtonText: {
     color: "white",
@@ -222,12 +222,14 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   taskBox: {
-    backgroundColor: "#89CFF0",
+    backgroundColor: "white",
     padding: 10,
     borderRadius: 8,
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: '#ddd',
   },
   taskCount: {
     textAlign: "center",
@@ -241,14 +243,16 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   upcomingTasks: {
-    backgroundColor: "#89CFF0",
+    backgroundColor: "white",
     padding: 10,
     borderRadius: 6,
     marginTop: 15,
+    borderWidth: 1,
+    borderColor: '#ddd'
   },
   upcomingTasksText: {
     textAlign: "center",
-    color: "white",
+    color: "black",
     fontSize: 16,
   },
   decorativeImageContainer: {
