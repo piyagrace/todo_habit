@@ -102,6 +102,10 @@ const ProfileScreen = () => {
 
       {/* Tasks Overview Section */}
       <View style={styles.overviewContainer}>
+      <Image
+        source={require('../../../assets/pro2.png')} // Adjust the path accordingly
+        style={styles.proHeader}
+      />
         <Text style={styles.overviewTitle}>Tasks Overview</Text>
         <View style={styles.taskRow}>
           <View style={styles.taskBox}>
@@ -179,7 +183,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    marginTop: 6
+    marginTop: 6,
+    marginBottom: 5
   },
   profileImage: {
     width: 60,
@@ -200,7 +205,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 25,
-    marginLeft: 93,
+    marginLeft: 91,
   },
   logoutButtonText: {
     color: "white",
@@ -217,9 +222,9 @@ const styles = StyleSheet.create({
   taskRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 10,
     marginTop: 7,
-    marginHorizontal: 11,
+    marginHorizontal: 14,
     marginBottom: 5
   },
   taskBox: {
@@ -239,16 +244,16 @@ const styles = StyleSheet.create({
   },
   lineChart: {
     borderRadius: 16,
-    marginHorizontal: 13,
-    marginRight: 23,
+    marginHorizontal: 15,
+    marginRight: 28,
     marginBottom: 5
   },
   upcomingTasks: {
     backgroundColor: "rgba(219, 40, 89, 0.14)",
     padding: 10,
     marginTop: 12,
-    marginHorizontal: 13,
-    marginRight: 10,
+    marginHorizontal: 16,
+    marginRight: 13,
     marginBottom: 5,
     borderRadius: 8,
   },
@@ -271,6 +276,13 @@ const styles = StyleSheet.create({
     height: 80,
     resizeMode: 'contain', // Adjust how the image fits
     marginRight: 8,
-    marginLeft: 10
+    marginLeft: 14
+  },
+  proHeader: {
+    width: 363,
+    height: 70,
+    borderRadius: 12,
+    marginLeft: 13,
+    marginBottom: 15
   }
 });
