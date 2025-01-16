@@ -93,7 +93,7 @@ const ProfileScreen = () => {
         <View>
           {/* Display user's name here */}
           <Text style={styles.title}>Hi {userName}!</Text>
-          <Text style={styles.subtitle}>Kept to your plan for 1 day!</Text>
+          <Text style={styles.subtitle}>How's your plan?</Text>
         </View>
         <Pressable onPress={handleLogout} style={styles.logoutButton}>
           <Text style={styles.logoutButtonText}>Log out</Text>
@@ -179,6 +179,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+    marginTop: 6
   },
   profileImage: {
     width: 60,
@@ -199,9 +200,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 25,
-    alignItems: "center",
-    justifyContent: "center",
-    marginLeft: 30,
+    marginLeft: 93,
   },
   logoutButtonText: {
     color: "white",
@@ -213,41 +212,45 @@ const styles = StyleSheet.create({
   overviewTitle: {
     fontSize: 18,
     fontWeight: "600",
+    marginLeft: 10
   },
   taskRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    marginVertical: 8,
+    marginTop: 7,
+    marginHorizontal: 11,
+    marginBottom: 5
   },
   taskBox: {
-    backgroundColor: "white",
-    padding: 10,
+    backgroundColor: "rgba(219, 40, 89, 0.14)",
+    padding: 20,
     borderRadius: 8,
     flex: 1,
-    justifyContent: "center",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: '#ddd',
   },
   taskCount: {
     textAlign: "center",
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: 20,
+    fontWeight: '900'
   },
   taskLabel: {
-    marginTop: 4,
+    marginTop: 9,
   },
   lineChart: {
     borderRadius: 16,
+    marginHorizontal: 13,
+    marginRight: 23,
+    marginBottom: 5
   },
   upcomingTasks: {
-    backgroundColor: "white",
+    backgroundColor: "rgba(219, 40, 89, 0.14)",
     padding: 10,
-    borderRadius: 6,
-    marginTop: 15,
-    borderWidth: 1,
-    borderColor: '#ddd'
+    marginTop: 12,
+    marginHorizontal: 13,
+    marginRight: 10,
+    marginBottom: 5,
+    borderRadius: 8,
   },
   upcomingTasksText: {
     textAlign: "center",

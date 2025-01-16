@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginTop: 9,
     marginBottom: 8,
-    marginHorizontal: 15
+    marginLeft: 16
   },
   todoBox: {
     backgroundColor: "white",
@@ -395,11 +395,10 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   completedHeader: {
-    flexDirection: 'row',  // Ensure items are laid out horizontally
-    alignItems: 'center',  // Align items vertically in the center
-    marginTop: 7,
-    gap: 3,
-    justifyContent: 'left', // Spread the items across the space
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 6,
+    gap: 5
   },
   completedTodoBox: {
     backgroundColor: "white",
