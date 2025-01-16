@@ -8,7 +8,7 @@ import {
   Alert,
   ActivityIndicator,
   FlatList,
-  Modal, // <-- Use the built-in Modal
+  Modal,
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import {
@@ -23,13 +23,14 @@ import { useIsFocused } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import WeekCalendar from '../weekcalendar';
 
+// --- IMPORT THE PROGRESS BAR COMPONENT ---
+import ProgressBar from './progressbar';
+
 const Habbitscreen = () => {
   const [option, setOption] = useState('Today');
   const router = useRouter();
   const [habits, setHabits] = useState([]);
-  // Control modal with selectedHabit
   const [selectedHabit, setSelectedHabit] = useState(null);
-
   const [userId, setUserId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -44,26 +45,21 @@ const Habbitscreen = () => {
     const initialize = async () => {
       try {
         const storedUserId = await AsyncStorage.getItem('userId');
-        console.log('Retrieved userId:', storedUserId);
         if (storedUserId) {
           setUserId(storedUserId);
           fetchHabits(storedUserId);
         } else {
-          console.log('User ID not found. Redirecting to login.');
           router.replace('/(authenticate)/login');
         }
       } catch (error) {
-        console.log('Error initializing Habbitscreen:', error);
         Alert.alert('Error', 'Failed to initialize user data.');
       }
     };
-
     initialize();
   }, []);
 
   useEffect(() => {
     if (isFocused && userId) {
-      console.log('Screen is focused. Fetching habits.');
       fetchHabits(userId);
     }
   }, [isFocused, userId]);
@@ -74,36 +70,30 @@ const Habbitscreen = () => {
       const response = await axios.get('http://192.168.100.5:3001/habitslist', {
         params: { userId: userIdParam },
       });
-      console.log('Fetched Habits:', response.data);
       setHabits(response.data);
     } catch (error) {
-      console.log('Error fetching habits:', error);
       Alert.alert('Error', 'Failed to fetch habits.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // "Open" the modal by setting the selected habit
+  // Open the modal by setting the selected habit
   const handlePress = (habitId) => {
-    console.log('Pressed Habit ID:', habitId);
     const habit = habits.find((h) => h._id === habitId);
-
     if (!habit) {
-      console.log('Habit not found for ID:', habitId);
       Alert.alert('Error', 'Selected habit not found.');
       return;
     }
-
-    console.log('Selected Habit:', habit);
     setSelectedHabit(habit);
   };
 
-  // "Close" the modal by clearing selectedHabit
+  // Close the modal
   const closeModal = () => {
     setSelectedHabit(null);
   };
 
+  // Mark habit as completed
   const handleCompletion = async () => {
     try {
       if (!selectedHabit) {
@@ -111,54 +101,35 @@ const Habbitscreen = () => {
         return;
       }
       const habitId = selectedHabit._id;
-      console.log('Attempting to mark completed for habit ID:', habitId);
-
       const updatedCompletion = {
         ...selectedHabit.completed,
         [currentDay]: true,
       };
-
       const updatedHabitData = {
         completed: updatedCompletion,
-        userId, // Include for server-side validation
+        userId,
       };
-
       const response = await axios.put(
         `http://192.168.100.5:3001/habits/${habitId}`,
         updatedHabitData
       );
-
       if (response.status === 200) {
-        console.log('Habit marked as completed:', response.data);
-        await fetchHabits(userId);
         Alert.alert('Success', 'Habit marked as completed!');
-
-        // Reset the modal to "empty"
+        await fetchHabits(userId);
         closeModal();
       }
     } catch (error) {
-      console.log('Error updating habit:', error);
-      if (error.response) {
-        Alert.alert(
-          'Error',
-          error.response.data.error || 'Failed to update habit.'
-        );
-      } else if (error.request) {
-        Alert.alert('Error', 'No response from server.');
-      } else {
-        Alert.alert('Error', 'An unexpected error occurred.');
-      }
+      Alert.alert('Error', 'Failed to update habit.');
     }
   };
 
+  // Update habit (navigate to update screen)
   const handleUpdate = () => {
     if (!selectedHabit || !selectedHabit._id) {
       Alert.alert('Error', 'No habit selected.');
       return;
     }
-
     closeModal();
-    // Add a short delay if needed
     setTimeout(() => {
       router.push({
         pathname: '/home/habbit/update',
@@ -167,6 +138,7 @@ const Habbitscreen = () => {
     }, 200);
   };
 
+  // Delete a habit
   const deleteHabit = () => {
     if (!selectedHabit) {
       Alert.alert('Error', 'No habit selected for deletion.');
@@ -182,48 +154,19 @@ const Habbitscreen = () => {
           style: 'destructive',
           onPress: async () => {
             try {
-              const habitId = selectedHabit._id;
-              console.log('Attempting to delete habit with ID:', habitId);
               setIsDeleting(true);
-
+              const habitId = selectedHabit._id;
               const response = await axios.delete(
                 `http://192.168.100.5:3001/habits/${habitId}`,
                 { data: { userId } }
               );
               if (response.status === 200) {
-                console.log('Habit deleted successfully:', response.data);
-                await fetchHabits(userId);
                 Alert.alert('Success', 'Habit deleted successfully!');
-
+                await fetchHabits(userId);
                 closeModal();
               }
             } catch (error) {
-              console.log('Error deleting habit:', error);
-              if (error.response) {
-                if (error.response.status === 404) {
-                  Alert.alert(
-                    'Deletion Failed',
-                    error.response.data.error || 'Habit not found.'
-                  );
-                } else if (error.response.status === 400) {
-                  Alert.alert(
-                    'Deletion Failed',
-                    error.response.data.error || 'Invalid habit ID.'
-                  );
-                } else {
-                  Alert.alert(
-                    'Deletion Failed',
-                    error.response.data.error || 'Failed to delete habit.'
-                  );
-                }
-              } else if (error.request) {
-                Alert.alert(
-                  'Deletion Failed',
-                  'No response from server. Please try again later.'
-                );
-              } else {
-                Alert.alert('Deletion Failed', 'An unexpected error occurred.');
-              }
+              Alert.alert('Error', 'Failed to delete habit.');
             } finally {
               setIsDeleting(false);
             }
@@ -233,7 +176,7 @@ const Habbitscreen = () => {
     );
   };
 
-  // 1) Add a new function to skip
+  // Skip a habit for today
   const handleSkip = async () => {
     try {
       if (!selectedHabit) {
@@ -241,43 +184,25 @@ const Habbitscreen = () => {
         return;
       }
       const habitId = selectedHabit._id;
-      console.log('Attempting to skip habit for ID:', habitId);
-
-      // Copy existing skip data, or default to {}
       const updatedSkipped = {
         ...(selectedHabit.skipped || {}),
         [currentDay]: true,
       };
-
       const updatedHabitData = {
         skipped: updatedSkipped,
         userId,
       };
-
-      // Make a PUT call to update "skipped"
       const response = await axios.put(
         `http://192.168.100.5:3001/habits/${habitId}`,
         updatedHabitData
       );
-
       if (response.status === 200) {
-        console.log('Habit skipped for today:', response.data);
-        await fetchHabits(userId);
         Alert.alert('Success', 'Habit skipped for today!');
+        await fetchHabits(userId);
         closeModal();
       }
     } catch (error) {
-      console.log('Error skipping habit:', error);
-      if (error.response) {
-        Alert.alert(
-          'Error',
-          error.response.data.error || 'Failed to skip habit.'
-        );
-      } else if (error.request) {
-        Alert.alert('Error', 'No response from server.');
-      } else {
-        Alert.alert('Error', 'An unexpected error occurred.');
-      }
+      Alert.alert('Error', 'Failed to skip habit.');
     }
   };
 
@@ -288,19 +213,28 @@ const Habbitscreen = () => {
     return [];
   };
 
-  // Filtering logic
+  // Filter logic (for "Today" we exclude anything that is completed or skipped)
   const filteredHabits = habits.filter((habit) => {
     if (option === 'Today') {
-      // EXCLUDE if completed[currentDay] = true OR skipped[currentDay] = true
       const isCompletedToday = habit.completed?.[currentDay] === true;
       const isSkippedToday = habit.skipped?.[currentDay] === true;
-
       return !isCompletedToday && !isSkippedToday;
     }
     return true;
   });
 
-  // Render item logic
+  // --- 2A) Calculate Daily Progress ---
+  //     The "total" is how many habits COULD be done today.
+  //     The "done" is how many have either been completed or skipped for the day.
+  // NOTE: This is only relevant for "Today" view, so we show progress bar only if option === 'Today'.
+  const totalHabitsForToday = habits.length; // or refine logic if you only want daily/weekly
+  const doneHabitsForToday = habits.reduce((count, habit) => {
+    const isCompleted = habit.completed?.[currentDay] === true;
+    const isSkipped = habit.skipped?.[currentDay] === true;
+    return isCompleted || isSkipped ? count + 1 : count;
+  }, 0);
+
+  // Render items
   const renderTodayItem = ({ item }) => (
     <Pressable
       onPress={() => handlePress(item._id)}
@@ -406,7 +340,6 @@ const Habbitscreen = () => {
     return habits;
   };
 
-  // "No habits today" fallback
   const renderEmptyToday = () => (
     <View style={styles.emptyContainer}>
       <Image
@@ -471,17 +404,24 @@ const Habbitscreen = () => {
           style={styles.addIcon}
         />
       </View>
-      <Text style={styles.sectionTitle}>Progress</Text>
+
+      {/* ONLY show the ProgressBar if user is on 'Today' */}
+      {option === 'Today' && (
+        <ProgressBar
+          step={doneHabitsForToday} 
+          steps={totalHabitsForToday}
+          height={6}
+        />
+      )}
+
       {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
     </View>
   );
 
   return (
     <View style={styles.container}>
-      {/* Top portion that remains static */}
       {renderStaticTop()}
 
-      {/* Now the FlatList (scrollable) starts at the "Progress" title */}
       <FlatList
         data={getData()}
         keyExtractor={(item) => item._id}
@@ -491,29 +431,19 @@ const Habbitscreen = () => {
         contentContainerStyle={{ paddingBottom: 20 }}
       />
 
-      {/** 
-       * Built-in React Native <Modal>. 
-       * Always mounted, but only visible when selectedHabit != null.
-       * We use a semi-transparent overlay and a "bottom sheet" style box.
-       */}
+      {/* MODAL for Habit Options */}
       <Modal
         visible={!!selectedHabit}
         transparent
         animationType="slide"
-        onRequestClose={closeModal}  // Android hardware back button support
+        onRequestClose={closeModal}  
       >
-        {/* BACKDROP */}
-        <Pressable
-          style={styles.modalBackdrop}
-          onPress={closeModal}
-        >
+        <Pressable style={styles.modalBackdrop} onPress={closeModal}>
           <View style={styles.modalBox}>
-            {/* Tap inside the box won't close the modal, so we need a nested Pressable or ignore pointerEvents */}
             <Text style={styles.modalTitle}>
               {selectedHabit ? selectedHabit.title : 'Habit Title'}
             </Text>
 
-            {/* Completed Option */}
             <Pressable
               onPress={handleCompletion}
               style={[styles.modalOption, isDeleting && styles.disabledOption]}
@@ -527,7 +457,6 @@ const Habbitscreen = () => {
               <Text style={styles.modalOptionText}>Completed</Text>
             </Pressable>
 
-            {/* Skip Option */}
             <Pressable
               style={styles.modalOption}
               onPress={handleSkip}
@@ -536,7 +465,6 @@ const Habbitscreen = () => {
               <Text>Skip</Text>
             </Pressable>
 
-            {/* Edit Option */}
             <Pressable
               onPress={handleUpdate}
               style={styles.modalOption}
@@ -545,7 +473,6 @@ const Habbitscreen = () => {
               <Text>Edit</Text>
             </Pressable>
 
-            {/* Delete Option */}
             <Pressable
               onPress={deleteHabit}
               style={[styles.modalOption, isDeleting && styles.disabledOption]}
@@ -567,7 +494,6 @@ const Habbitscreen = () => {
 
 export default Habbitscreen;
 
-// STYLES
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -680,19 +606,29 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: '600',
   },
+  completedContainer: {
+    marginHorizontal: 25,
+    marginTop: 5,
+  },
+  completedLabel: {
+    fontWeight: '600',
+  },
+  completedDays: {
+    marginTop: 2,
+    fontStyle: 'italic',
+  },
 
-  // MODAL STYLES
+  // MODAL
   modalBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)', // semi-transparent backdrop
-    justifyContent: 'flex-end',         // pushes the box to the bottom
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
   },
   modalBox: {
     backgroundColor: '#fff',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
-    // optional: fixed height or min-height
     minHeight: 200,
   },
   modalTitle: {
