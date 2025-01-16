@@ -375,33 +375,31 @@ app.get("/habits/:habitId", async (req, res) => {
 app.put("/habits/:habitId", async (req, res) => {
   try {
     const { habitId } = req.params;
-    const {
-      title,
-      color,
-      repeatMode,
-      days,
-      reminder,
-      userId, // if your logic requires validating the user
-    } = req.body;
+    const updateData = req.body;
 
-    // (Optional) Validate or check if the habit belongs to userId
-    // e.g. const habit = await Habit.findOne({ _id: habitId, user: userId });
+    // Optional: Validate user ownership
+    const { userId } = updateData;
+    if (userId) {
+      const habit = await Habit.findOne({ _id: habitId, user: userId });
+      if (!habit) {
+        return res.status(404).json({ error: "Habit not found or not yours." });
+      }
+    }
 
+    // Handle repeatMode and days
+    if (updateData.repeatMode === "weekly" && !updateData.days) {
+      updateData.days = []; // or handle accordingly
+    }
+
+    // Use $set to update only the provided fields
     const updatedHabit = await Habit.findByIdAndUpdate(
       habitId,
-      {
-        title,
-        color,
-        repeatMode,
-        days: repeatMode === "weekly" ? days : [],
-        reminder,
-        // etc.
-      },
-      { new: true } // return the updated doc
+      { $set: updateData },
+      { new: true, runValidators: true }
     );
 
     if (!updatedHabit) {
-      return res.status(404).json({ error: "Habit not found or not yours." });
+      return res.status(404).json({ error: "Habit not found." });
     }
 
     res.status(200).json(updatedHabit);
@@ -410,6 +408,7 @@ app.put("/habits/:habitId", async (req, res) => {
     res.status(500).json({ error: "Internal server error." });
   }
 });
+
 
 
 

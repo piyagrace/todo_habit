@@ -121,7 +121,7 @@ const create = () => {
           };
 
           const response = await axios.post(
-              "http://192.168.1.50:3001/habits",
+              "http://192.168.100.5:3001/habits",
               habitDetails
           );
 

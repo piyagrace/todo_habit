@@ -32,6 +32,10 @@ const habitSchema = new mongoose.Schema({
         type: Object,
         default: {}
     },
+    skipped: {
+        type: Object,
+        default: {},
+    },
     createdAt: {
         type: Date,
         default: Date.now

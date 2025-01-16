@@ -42,7 +42,7 @@ const ProfileScreen = () => {
       const token = await AsyncStorage.getItem("authToken");
 
       // 1. Fetch user info for the name
-      const userResponse = await axios.get(`http://192.168.1.50:3001/users/${userId}`, {
+      const userResponse = await axios.get(`http://192.168.100.5:3001/users/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -52,7 +52,7 @@ const ProfileScreen = () => {
 
       // 2. Fetch tasks count for that user
       const todosCountResponse = await axios.get(
-        `http://192.168.1.50:3001/users/${userId}/todos/count`,
+        `http://192.168.100.5:3001/users/${userId}/todos/count`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -86,15 +86,14 @@ const ProfileScreen = () => {
     <View style={styles.container}>
       {/* Header Section */}
       <View style={styles.headerRow}>
-        <Ionicons
-          name="person-circle-outline"
-          size={60}
-          color={"black"}
-        />
+      <Image
+        source={require('../../../assets/user.png')} // Adjust the path accordingly
+        style={styles.logo}
+      />
         <View>
           {/* Display user's name here */}
-          <Text style={styles.title}>Welcome, {userName}!</Text>
-          <Text style={styles.subtitle}>Select Categories</Text>
+          <Text style={styles.title}>Hi {userName}!</Text>
+          <Text style={styles.subtitle}>Kept to your plan for 1 day!</Text>
         </View>
         <Pressable onPress={handleLogout} style={styles.logoutButton}>
           <Text style={styles.logoutButtonText}>Log out</Text>
@@ -196,13 +195,13 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   logoutButton: {
-    backgroundColor: "#ff5a5f",
+    backgroundColor: "#db2859",
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 25,
     alignItems: "center",
     justifyContent: "center",
-    marginLeft: 70,
+    marginLeft: 30,
   },
   logoutButtonText: {
     color: "white",
@@ -264,4 +263,11 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
   },
+  logo: {
+    width: 60,
+    height: 80,
+    resizeMode: 'contain', // Adjust how the image fits
+    marginRight: 8,
+    marginLeft: 10
+  }
 });

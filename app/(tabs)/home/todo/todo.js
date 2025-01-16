@@ -63,7 +63,7 @@ const Todo = () => {
   const getUserTodos = async (uid) => {
     try {
       const response = await axios.get(
-        `http://192.168.1.50:3001/users/${uid}/todos`
+        `http://192.168.100.5:3001/users/${uid}/todos`
       );
 
       console.log("Fetched Todos:", response.data.todos);
@@ -105,7 +105,7 @@ const Todo = () => {
       };
 
       const response = await axios.post(
-        `http://192.168.1.50:3001/todos/${userId}`,
+        `http://192.168.100.5:3001/todos/${userId}`,
         todoData
       );
 
@@ -130,7 +130,7 @@ const Todo = () => {
     try {
       setMarked(true);
       const response = await axios.patch(
-        `http://192.168.1.50:3001/todos/${todoId}/complete`
+        `http://192.168.100.5:3001/todos/${todoId}/complete`
       );
       console.log("Mark Completed Response:", response.data);
       await getUserTodos(userId);
@@ -226,7 +226,7 @@ const Todo = () => {
                         <Text style={styles.completedTodoTitle}>
                           {item.title}
                         </Text>
-                        <Feather name="flag" size={20} color="gray" />
+                        <Feather name="flag" size={15} color="gray" />
                       </View>
                     </Pressable>
                   ))}
