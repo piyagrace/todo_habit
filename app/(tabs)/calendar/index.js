@@ -7,31 +7,22 @@ import { FontAwesome, Feather, MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 
-const index = () => { // Capitalized component name for convention
+const Index = () => {
   const router = useRouter();
   const today = moment().format("YYYY-MM-DD");
 
-  // Local state
   const [selectedDate, setSelectedDate] = useState(today);
   const [todos, setTodos] = useState([]);
-  const [userId, setUserId] = useState(null); // Store userId here
+  const [userId, setUserId] = useState(null);
 
-  /**
-   * Initialize the screen:
-   *  - Retrieve the userId from AsyncStorage
-   *  - If userId is not found, redirect to login
-   *  - Else, fetch completed todos for today's date
-   */
   useEffect(() => {
     const initialize = async () => {
       try {
         const storedUserId = await AsyncStorage.getItem("userId");
         if (!storedUserId) {
-          // If no userId is found, redirect to login
           router.replace("/authenticate/login");
         } else {
           setUserId(storedUserId);
-          // Fetch completed todos for the current date
           await fetchCompletedTodos(storedUserId, selectedDate);
         }
       } catch (error) {
@@ -42,23 +33,14 @@ const index = () => { // Capitalized component name for convention
     initialize();
   }, []);
 
-  /**
-   * Whenever the selected date changes (or userId becomes available),
-   * fetch the completed todos for that date.
-   */
   useEffect(() => {
     if (userId) {
       fetchCompletedTodos(userId, selectedDate);
     }
   }, [selectedDate, userId]);
 
-  /**
-   * Fetch the completed todos for a given user and date.
-   * Replace the endpoint below with your actual user-specific API.
-   */
   const fetchCompletedTodos = async (uid, date) => {
     try {
-      // Example endpoint: /users/:userId/todos/completed/:date
       const response = await axios.get(
         `http://192.168.100.5:3001/users/${uid}/todos/completed/${date}`
       );
@@ -69,15 +51,15 @@ const index = () => { // Capitalized component name for convention
     }
   };
 
-  // Handler for selecting a new date on the calendar
   const handleDayPress = (day) => {
     setSelectedDate(day.dateString);
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: "#f1ebed" }}>
-      {/* Calendar Component */}
+      {/* Calendar Component with margin */}
       <Calendar
+        style={styles.calendarStyle} // <-- Apply calendarStyle
         onDayPress={handleDayPress}
         markedDates={{
           [selectedDate]: {
@@ -86,14 +68,14 @@ const index = () => { // Capitalized component name for convention
           },
         }}
         theme={{
-          calendarBackground: '#f1ebed',
+          backgroundColor: "white",
+          calendarBackground: "white",
           selectedDayBackgroundColor: "#db2859",
           selectedDayTextColor: "#ffffff",
-          todayTextColor: "#db2859",
+          todayTextColor: "black",
           arrowColor: "#db2859",
-          monthTextColor: 'black', 
-          textSectionTitleColor: '#b6c1cd'
-          // Additional theme customizations if needed
+          monthTextColor: "black",
+          textSectionTitleColor: "#b6c1cd",
         }}
       />
 
@@ -107,7 +89,13 @@ const index = () => { // Capitalized component name for convention
       </View>
 
       {/* Divider */}
-      <View style={{ height: 1, backgroundColor: "#e0e0e0", marginHorizontal: 10 }} />
+      <View
+        style={{
+          height: 1,
+          backgroundColor: "#e0e0e0",
+          marginHorizontal: 10,
+        }}
+      />
 
       {/* Scrollable List of Completed Todos */}
       <FlatList
@@ -118,7 +106,7 @@ const index = () => { // Capitalized component name for convention
             <View style={styles.todoRow}>
               <FontAwesome name="circle" size={18} color="gray" />
               <Text style={styles.todoText}>{item?.title}</Text>
-              <Feather name="flag" size={20} color="gray" />
+              <Feather name="flag" size={15} color="gray" />
             </View>
           </Pressable>
         )}
@@ -137,23 +125,31 @@ const index = () => { // Capitalized component name for convention
   );
 };
 
-export default index; // Ensure the component name matches the file name
+export default Index;
 
 const styles = StyleSheet.create({
+  calendarStyle: {
+    marginHorizontal: 28,
+    borderRadius: 10,
+    marginTop: 35,
+    backgroundColor: "white",
+    marginBottom: 20,
+    height: 325
+  },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
     marginVertical: 6,
-    marginHorizontal: 10,
+    marginHorizontal: 25,
   },
   todoItem: {
-    backgroundColor: "white", // Updated color
+    backgroundColor: "white",
     padding: 10,
     borderRadius: 5,
     marginTop: 10,
-    marginVertical: 7, // Reduced margin for better spacing in the list
-    marginHorizontal: 10,
+    marginVertical: 7,
+    marginHorizontal: 25,
   },
   todoRow: {
     flexDirection: "row",
@@ -166,7 +162,7 @@ const styles = StyleSheet.create({
     color: "gray",
   },
   todoList: {
-    paddingBottom: 20, // Ensures the last item is fully visible
+    paddingBottom: 20,
   },
   emptyList: {
     marginTop: 20,

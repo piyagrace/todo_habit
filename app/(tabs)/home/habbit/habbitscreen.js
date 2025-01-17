@@ -1,4 +1,3 @@
-// Habbitscreen.js
 import {
   StyleSheet,
   Text,
@@ -138,6 +137,20 @@ const Habbitscreen = () => {
     }, 200);
   };
 
+  const handleView = () => {
+    if (!selectedHabit || !selectedHabit._id) {
+      Alert.alert('Error', 'No habit selected.');
+      return;
+    }
+    closeModal();
+    setTimeout(() => {
+      router.push({
+        pathname: '/home/habbit/view',
+        params: { habitId: selectedHabit._id },
+      });
+    }, 200);
+  };
+
   // Delete a habit
   const deleteHabit = () => {
     if (!selectedHabit) {
@@ -223,11 +236,8 @@ const Habbitscreen = () => {
     return true;
   });
 
-  // --- 2A) Calculate Daily Progress ---
-  //     The "total" is how many habits COULD be done today.
-  //     The "done" is how many have either been completed or skipped for the day.
-  // NOTE: This is only relevant for "Today" view, so we show progress bar only if option === 'Today'.
-  const totalHabitsForToday = habits.length; // or refine logic if you only want daily/weekly
+  // Calculate Daily Progress
+  const totalHabitsForToday = habits.length;
   const doneHabitsForToday = habits.reduce((count, habit) => {
     const isCompleted = habit.completed?.[currentDay] === true;
     const isSkipped = habit.skipped?.[currentDay] === true;
@@ -312,7 +322,7 @@ const Habbitscreen = () => {
         </View>
       </Pressable>
       <View style={styles.completedContainer}>
-        <Text style={styles.completedLabel}>Completed On:</Text>
+        <Text style={styles.completedLabel}>Completed On: </Text>
         <Text style={styles.completedDays}>
           {getCompletedDays(item.completed).join(', ') || 'None'}
         </Text>
@@ -344,18 +354,10 @@ const Habbitscreen = () => {
     <View style={styles.emptyContainer}>
       <Image
         style={styles.emptyImage}
-        source={{
-          uri: 'https://cdn-icons-png.flaticon.com/128/10609/10609386.png',
-        }}
+        source={require('../../../../assets/sleep.png')}
       />
       <Text style={styles.emptyText}>No habits for today</Text>
-      <Text style={styles.emptyText}>Create one?</Text>
-      <Pressable
-        onPress={() => router.push('/home/habbit/create')}
-        style={styles.createButton}
-      >
-        <Text style={styles.createButtonText}>Create</Text>
-      </Pressable>
+      <AntDesign name="pluscircle" size={30} color="#db2859" />
     </View>
   );
 
@@ -408,7 +410,7 @@ const Habbitscreen = () => {
       {/* ONLY show the ProgressBar if user is on 'Today' */}
       {option === 'Today' && (
         <ProgressBar
-          step={doneHabitsForToday} 
+          step={doneHabitsForToday}
           steps={totalHabitsForToday}
           height={6}
         />
@@ -436,52 +438,88 @@ const Habbitscreen = () => {
         visible={!!selectedHabit}
         transparent
         animationType="slide"
-        onRequestClose={closeModal}  
+        onRequestClose={closeModal}
       >
         <Pressable style={styles.modalBackdrop} onPress={closeModal}>
           <View style={styles.modalBox}>
             <Text style={styles.modalTitle}>
               {selectedHabit ? selectedHabit.title : 'Habit Title'}
             </Text>
+            
+            <View style={styles.divider} />
 
+            {/* Two-column container for first four actions */}
+              <Pressable
+                onPress={handleCompletion}
+                style={[
+                  styles.modalOption,
+                  styles.twoColumnOption,
+                  isDeleting && styles.disabledOption,
+                ]}
+                disabled={isDeleting}
+              >
+                <Ionicons
+                  name="checkmark-circle-outline"
+                  size={24}
+                  color={isDeleting ? 'gray' : '#db2859'}
+                />
+                <Text style={styles.modalOptionText}>Completed</Text>
+              </Pressable>
+
+              <Pressable
+                onPress={handleView}
+                style={[
+                  styles.modalOption,
+                  styles.twoColumnOption,
+                  isDeleting && styles.disabledOption,
+                ]}
+                disabled={isDeleting}
+              >
+                <Ionicons
+                  name="eye-outline"
+                  size={24}
+                  color={isDeleting ? 'gray' : '#db2859'}
+                />
+                <Text style={styles.modalOptionText}>View</Text>
+              </Pressable>
+
+              <Pressable
+                style={[styles.modalOption, styles.twoColumnOption]}
+                onPress={handleSkip}
+              >
+                <Ionicons
+                  name="play-skip-forward-outline"
+                  size={24}
+                  color="#db2859"
+                />
+                <Text style={styles.modalOptionText}>Skip</Text>
+              </Pressable>
+
+              <Pressable
+                onPress={handleUpdate}
+                style={[styles.modalOption, styles.twoColumnOption]}
+              >
+                <Ionicons
+                  name="create-outline"
+                  size={24}
+                  color="#db2859"
+                />
+                <Text style={styles.modalOptionText}>Edit</Text>
+              </Pressable>
+
+            {/* Centered single row for Delete */}
             <Pressable
-              onPress={handleCompletion}
-              style={[styles.modalOption, isDeleting && styles.disabledOption]}
+              onPress={deleteHabit}
+              style={[
+                styles.modalOption,
+                isDeleting && styles.disabledOption,
+              ]}
               disabled={isDeleting}
             >
               <Ionicons
-                name="checkmark-circle-outline"
+                name="trash-outline"
                 size={24}
-                color={isDeleting ? 'gray' : 'black'}
-              />
-              <Text style={styles.modalOptionText}>Completed</Text>
-            </Pressable>
-
-            <Pressable
-              style={styles.modalOption}
-              onPress={handleSkip}
-            >
-              <Feather name="skip-forward" size={24} color="black" />
-              <Text>Skip</Text>
-            </Pressable>
-
-            <Pressable
-              onPress={handleUpdate}
-              style={styles.modalOption}
-            >
-              <Feather name="edit-2" size={24} color="black" />
-              <Text>Edit</Text>
-            </Pressable>
-
-            <Pressable
-              onPress={deleteHabit}
-              style={[styles.modalOption, isDeleting && styles.disabledOption]}
-              disabled={isDeleting}
-            >
-              <AntDesign
-                name="delete"
-                size={24}
-                color={isDeleting ? 'gray' : 'black'}
+                color={isDeleting ? 'gray' : '#db2859'}
               />
               <Text style={styles.modalOptionText}>Delete</Text>
             </Pressable>
@@ -585,8 +623,8 @@ const styles = StyleSheet.create({
     marginBottom: 'auto',
   },
   emptyImage: {
-    width: 60,
-    height: 60,
+    width: 100,
+    height: 100,
     resizeMode: 'cover',
   },
   emptyText: {
@@ -594,6 +632,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     marginTop: 10,
+    marginBottom: 10,
   },
   createButton: {
     backgroundColor: '#0071c5',
@@ -607,8 +646,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   completedContainer: {
+    flexDirection: 'row',
     marginHorizontal: 25,
     marginTop: 5,
+    alignItems: 'center',
+    marginBottom: 10
   },
   completedLabel: {
     fontWeight: '600',
@@ -628,25 +670,46 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    padding: 20,
+    padding: 25,
     minHeight: 200,
   },
   modalTitle: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: '600',
     marginBottom: 15,
   },
   modalOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 15,
-    gap: 12,
+    marginTop: 12,
+    gap: 15,
+    marginVertical: 4,
   },
   modalOptionText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#000',
   },
   disabledOption: {
     opacity: 0.5,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: 'rgba(213, 220, 230, 0.46)',
+    marginVertical: 5,
+  },
+
+  // NEW/UPDATED STYLES FOR TWO-COLUMN LAYOUT
+  modalOptionsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',           // Allow wrapping to the next line
+    justifyContent: 'space-between',
+    marginLeft: 15
+  },
+  twoColumnOption: {
+    width: '40%',               // Adjust as needed (48% or 49%)
+  },
+  deleteRow: {
+    alignSelf: 'center',        // Center horizontally
+    marginTop: 20,
   },
 });

@@ -4,6 +4,7 @@ import {
     StyleSheet,
     Text,
     View,
+    Image,
     TextInput,
     TouchableOpacity,
     Pressable,
@@ -14,20 +15,17 @@ import {
     ScrollView,
     KeyboardAvoidingView,
     Platform,
-  } from 'react-native';
-  import React, { useState, useRef, useEffect } from 'react';
-  import { Ionicons, AntDesign } from '@expo/vector-icons';
-  import { FontAwesome } from '@expo/vector-icons';
-  import axios from 'axios';
-  import { useRouter, useSearchParams } from 'expo-router';
-  import AsyncStorage from '@react-native-async-storage/async-storage';
-  
-  const Update = () => {
+} from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { Ionicons, AntDesign, FontAwesome } from '@expo/vector-icons';
+import axios from 'axios';
+import { useRouter, useSearchParams } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const Update = () => {
     const router = useRouter();
     const { habitId } = useSearchParams(); // Retrieve habitId from query parameters
-  
-    console.log('Received habitId:', habitId); // Debugging line
-  
+
     // UI State
     const [selectedColor, setSelectedColor] = useState('');
     const [title, setTitle] = useState('');
@@ -37,631 +35,738 @@ import {
     const [hour, setHour] = useState('12');
     const [minute, setMinute] = useState('00');
     const [amPm, setAmPm] = useState('AM');
-  
+
     // Modals
     const [isHourModalVisible, setIsHourModalVisible] = useState(false);
     const [isMinuteModalVisible, setIsMinuteModalVisible] = useState(false);
     const [isAmPmModalVisible, setIsAmPmModalVisible] = useState(false);
-  
+
     const hours = Array.from({ length: 12 }, (_, i) => (i + 1).toString());
     const minutes = Array.from({ length: 60 }, (_, i) =>
-      i < 10 ? `0${i}` : `${i}`
+        i < 10 ? `0${i}` : `${i}`
     );
     const amPmOptions = ['AM', 'PM'];
-  
+
     const colors = [
-      '#FF5733',
-      '#FFD700',
-      '#5D76A9',
-      '#1877F2',
-      '#32CD32',
-      '#CCCCFF',
-      '#4169E1',
+        'rgba(245, 112, 112, 255)',
+        'rgba(245, 224, 105, 255)',
+        'rgba(93, 118, 169, 255)',
+        'rgba(96, 159, 242, 255)',
+        'rgba(106, 236, 106, 255)',
+        '#ccccff',
+        'rgba(237, 171, 113, 255)',
     ];
+
     const daysOptions = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
-  
-    // References for FlatList scrolling
+
+    // Refs for FlatList scrolling
     const hourListRef = useRef(null);
     const minuteListRef = useRef(null);
     const amPmListRef = useRef(null);
-  
-    // Fetch habit data on mount
+
+    // FETCH HABIT DATA
     useEffect(() => {
-      if (!habitId) {
-        Alert.alert('Error', 'No habit ID provided.');
-        router.replace('/home'); // Redirect to home if habitId is missing
-        return;
-      }
-      fetchHabitData(habitId);
+        // If no habitId is present, do nothing (the user might have just navigated here or canceled)
+        if (!habitId) {
+            console.log('No habitId provided, skipping fetchHabitData');
+            return;
+        }
+        fetchHabitData(habitId);
     }, [habitId]);
-  
+
     const fetchHabitData = async (id) => {
-      try {
-        const response = await axios.get(`http://192.168.100.5:3001/habits/${id}`);
-        const habit = response.data;
-        console.log('Fetched habit for update:', habit);
-  
-        setTitle(habit.title);
-        setSelectedColor(habit.color);
-        setRepeatMode(habit.repeatMode || 'daily');
-  
-        if (habit.days && Array.isArray(habit.days)) {
-          setSelectedDays(habit.days);
-        } else {
-          setSelectedDays([]);
+        try {
+            const response = await axios.get(`http://192.168.100.5:3001/habits/${id}`);
+            const habit = response.data;
+            console.log('Fetched habit for update:', habit);
+
+            setTitle(habit.title);
+            setSelectedColor(habit.color);
+            setRepeatMode(habit.repeatMode || 'daily');
+
+            if (habit.days && Array.isArray(habit.days)) {
+                setSelectedDays(habit.days);
+            } else {
+                setSelectedDays([]);
+            }
+
+            // Reminder
+            if (habit.reminder?.enabled && habit.reminder.time) {
+                setReminderEnabled(true);
+                const [hhmm, ampm] = habit.reminder.time.split(' ');
+                const [hh, mm] = hhmm.split(':');
+                setHour(hh);
+                setMinute(mm);
+                setAmPm(ampm);
+            } else {
+                setReminderEnabled(false);
+            }
+        } catch (error) {
+            console.log('Error fetching habit:', error);
+            Alert.alert('Error', 'Failed to fetch habit data.');
+            router.replace('/home'); // or just navigate back
         }
-  
-        // Reminder
-        if (habit.reminder?.enabled && habit.reminder.time) {
-          setReminderEnabled(true);
-          // Parse time "HH:MM AM/PM"
-          const [hhmm, ampm] = habit.reminder.time.split(' ');
-          const [hh, mm] = hhmm.split(':');
-          setHour(hh);
-          setMinute(mm);
-          setAmPm(ampm);
-        } else {
-          setReminderEnabled(false);
-        }
-      } catch (error) {
-        console.log('Error fetching habit:', error);
-        Alert.alert('Error', 'Failed to fetch habit data.');
-        router.replace('/home'); // Redirect to home on failure
-      }
     };
-  
-    // Toggle selected days for weekly repeat mode
+
+    // Toggle days for weekly
     const toggleDay = (day) => {
-      if (selectedDays.includes(day)) {
-        setSelectedDays(selectedDays.filter((d) => d !== day));
-      } else {
-        setSelectedDays([...selectedDays, day]);
-      }
+        if (selectedDays.includes(day)) {
+            setSelectedDays(selectedDays.filter((d) => d !== day));
+        } else {
+            setSelectedDays([...selectedDays, day]);
+        }
     };
-  
-    // Update habit data via PUT request
+
+    // UPDATE HABIT
     const updateHabit = async () => {
-      try {
-        // Validation
-        if (!title.trim()) {
-          Alert.alert('Validation Error', 'Please enter a title.');
-          return;
+        try {
+            // Validation
+            if (!title.trim()) {
+                Alert.alert('Validation Error', 'Please enter a title.');
+                return;
+            }
+            if (!selectedColor) {
+                Alert.alert('Validation Error', 'Please select a color.');
+                return;
+            }
+            if (repeatMode === 'weekly' && selectedDays.length === 0) {
+                Alert.alert('Validation Error', 'Please select at least one day.');
+                return;
+            }
+            if (reminderEnabled && (!hour || !minute || !amPm)) {
+                Alert.alert('Validation Error', 'Please select a valid reminder time.');
+                return;
+            }
+
+            const reminderTime = reminderEnabled ? `${hour}:${minute} ${amPm}` : null;
+
+            // Retrieve userId from AsyncStorage
+            const userId = await AsyncStorage.getItem('userId');
+            if (!userId) {
+                Alert.alert('Authentication Error', 'Please log in again.');
+                router.replace('/(authenticate)/login');
+                return;
+            }
+
+            const updatedHabitData = {
+                title: title.trim(),
+                color: selectedColor,
+                repeatMode,
+                days: repeatMode === 'weekly' ? selectedDays : [],
+                reminder: {
+                    enabled: reminderEnabled,
+                    time: reminderTime,
+                },
+                userId,
+            };
+
+            const response = await axios.put(
+                `http://192.168.100.5:3001/habits/${habitId}`,
+                updatedHabitData
+            );
+
+            if (response.status === 200) {
+                Alert.alert('Success', 'Habit updated successfully!');
+                router.push('/home');
+            } else {
+                Alert.alert('Error', 'Failed to update habit. Please try again.');
+            }
+        } catch (error) {
+            console.log('Error updating habit:', error);
+            if (error.response && error.response.data?.error) {
+                Alert.alert('Error', error.response.data.error);
+            } else if (error.request) {
+                Alert.alert('Network Error', 'Unable to reach the server.');
+            } else {
+                Alert.alert('Error', 'There was a problem updating your habit.');
+            }
         }
-        if (!selectedColor) {
-          Alert.alert('Validation Error', 'Please select a color.');
-          return;
-        }
-        if (repeatMode === 'weekly' && selectedDays.length === 0) {
-          Alert.alert('Validation Error', 'Please select at least one day.');
-          return;
-        }
-        if (reminderEnabled && (!hour || !minute || !amPm)) {
-          Alert.alert('Validation Error', 'Please select a valid reminder time.');
-          return;
-        }
-  
-        const reminderTime = reminderEnabled ? `${hour}:${minute} ${amPm}` : null;
-  
-        // Retrieve userId from AsyncStorage
-        const userId = await AsyncStorage.getItem('userId');
-        if (!userId) {
-          Alert.alert('Authentication Error', 'Please log in again.');
-          router.replace('/(authenticate)/login');
-          return;
-        }
-  
-        const updatedHabitData = {
-          title: title.trim(),
-          color: selectedColor,
-          repeatMode,
-          days: repeatMode === 'weekly' ? selectedDays : [],
-          reminder: {
-            enabled: reminderEnabled,
-            time: reminderTime,
-          },
-          userId, // Include for server-side validation
-        };
-  
-        // Send PUT request to update habit
-        const response = await axios.put(
-          `http://192.168.100.5:3001/habits/${habitId}`,
-          updatedHabitData
-        );
-  
-        if (response.status === 200) {
-          Alert.alert('Success', 'Habit updated successfully!');
-          router.push('/home');
-        } else {
-          Alert.alert('Error', 'Failed to update habit. Please try again.');
-        }
-      } catch (error) {
-        console.log('Error updating habit:', error);
-        if (error.response && error.response.data?.error) {
-          Alert.alert('Error', error.response.data.error);
-        } else if (error.request) {
-          Alert.alert('Network Error', 'Unable to reach the server.');
-        } else {
-          Alert.alert('Error', 'There was a problem updating your habit.');
-        }
-      }
     };
-  
+
     // Time Picker Item Renderer
     const renderItem = (item, type) => (
-      <TouchableOpacity
-        style={styles.modalItem}
-        onPress={() => {
-          if (type === 'hour') {
-            setHour(item);
-            setIsHourModalVisible(false);
-          } else if (type === 'minute') {
-            setMinute(item);
-            setIsMinuteModalVisible(false);
-          } else if (type === 'amPm') {
-            setAmPm(item);
-            setIsAmPmModalVisible(false);
-          }
-        }}
-      >
-        <Text style={styles.modalItemText}>{item}</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+            style={styles.modalItem}
+            onPress={() => {
+                if (type === 'hour') {
+                    setHour(item);
+                    setIsHourModalVisible(false);
+                } else if (type === 'minute') {
+                    setMinute(item);
+                    setIsMinuteModalVisible(false);
+                } else if (type === 'amPm') {
+                    setAmPm(item);
+                    setIsAmPmModalVisible(false);
+                }
+            }}
+        >
+            <Text style={styles.modalItemText}>{item}</Text>
+        </TouchableOpacity>
     );
-  
+
     // Scroll to the selected item when modal opens
     useEffect(() => {
-      if (isHourModalVisible && hourListRef.current) {
-        const hourIndex = hours.indexOf(hour);
-        if (hourIndex >= 0) {
-          hourListRef.current.scrollToIndex({ index: hourIndex, animated: false });
+        if (isHourModalVisible && hourListRef.current) {
+            const hourIndex = hours.indexOf(hour);
+            if (hourIndex >= 0) {
+                hourListRef.current.scrollToIndex({ index: hourIndex, animated: false });
+            }
         }
-      }
     }, [isHourModalVisible]);
-  
+
     useEffect(() => {
-      if (isMinuteModalVisible && minuteListRef.current) {
-        const minuteIndex = minutes.indexOf(minute);
-        if (minuteIndex >= 0) {
-          minuteListRef.current.scrollToIndex({ index: minuteIndex, animated: false });
+        if (isMinuteModalVisible && minuteListRef.current) {
+            const minuteIndex = minutes.indexOf(minute);
+            if (minuteIndex >= 0) {
+                minuteListRef.current.scrollToIndex({ index: minuteIndex, animated: false });
+            }
         }
-      }
     }, [isMinuteModalVisible]);
-  
+
     useEffect(() => {
-      if (isAmPmModalVisible && amPmListRef.current) {
-        const amPmIndex = amPmOptions.indexOf(amPm);
-        if (amPmIndex >= 0) {
-          amPmListRef.current.scrollToIndex({ index: amPmIndex, animated: false });
+        if (isAmPmModalVisible && amPmListRef.current) {
+            const amPmIndex = amPmOptions.indexOf(amPm);
+            if (amPmIndex >= 0) {
+                amPmListRef.current.scrollToIndex({
+                    index: amPmIndex,
+                    animated: false,
+                });
+            }
         }
-      }
     }, [isAmPmModalVisible]);
-  
-    // UI Rendering
+
+    // CANCEL EDIT => Just go back to home
+    const cancelEdit = () => {
+        router.push({
+          pathname: '/home',
+          params: { screen: 'habbit' },
+        });
+      };
+
     return (
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <ScrollView
-          contentContainerStyle={styles.scrollContainer}
-          keyboardShouldPersistTaps="handled"
+        <KeyboardAvoidingView
+            style={styles.container}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
-          {/* Header */}
-          <View style={styles.headerContainer}>
-            <Ionicons
-              name="arrow-back"
-              onPress={() => router.push('/home')}
-              size={24}
-              color="black"
-              style={styles.backIcon}
-            />
-            <Text style={styles.header}>Edit Habit</Text>
-          </View>
-  
-          {/* Title Input */}
-          <TextInput
-            value={title}
-            onChangeText={(text) => setTitle(text)}
-            style={styles.input}
-            placeholder="Title"
-            placeholderTextColor="#666"
-          />
-  
-          {/* Color Selection */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Color</Text>
-            <View style={styles.colorsContainer}>
-              {colors.map((item, index) => (
-                <TouchableOpacity
-                  onPress={() => setSelectedColor(item)}
-                  key={index}
-                  activeOpacity={0.8}
-                >
-                  {selectedColor === item ? (
-                    <AntDesign name="plussquare" size={30} color={item} />
-                  ) : (
-                    <FontAwesome name="square" size={30} color={item} />
-                  )}
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-  
-          {/* Repeat Mode Selection */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Repeat</Text>
-            <View style={styles.repeatContainer}>
-              <Pressable
-                onPress={() => setRepeatMode('daily')}
-                style={[
-                  styles.repeatOption,
-                  repeatMode === 'daily' && styles.selectedOption,
-                ]}
-              >
-                <Text style={styles.repeatText}>Daily</Text>
-              </Pressable>
-              <Pressable
-                onPress={() => setRepeatMode('weekly')}
-                style={[
-                  styles.repeatOption,
-                  repeatMode === 'weekly' && styles.selectedOption,
-                ]}
-              >
-                <Text style={styles.repeatText}>Weekly</Text>
-              </Pressable>
-            </View>
-          </View>
-  
-          {/* Days Selection for Weekly Repeat */}
-          {repeatMode === 'weekly' && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>On these days</Text>
-              <View style={styles.daysContainer}>
-                {daysOptions.map((day, index) => (
-                  <Pressable
-                    key={index}
-                    onPress={() => toggleDay(day)}
-                    style={[
-                      styles.dayBox,
-                      selectedDays.includes(day) && styles.selectedDay,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.dayText,
-                        selectedDays.includes(day) && styles.selectedDayText,
-                      ]}
-                    >
-                      {day}
-                    </Text>
-                  </Pressable>
-                ))}
-              </View>
-            </View>
-          )}
-  
-          {/* Reminder Toggle */}
-          <View style={styles.reminderContainer}>
-            <Text style={styles.reminderText}>Reminder</Text>
-            <Switch
-              value={reminderEnabled}
-              onValueChange={(value) => setReminderEnabled(value)}
-              trackColor={{ false: '#767577', true: '#2774AE' }}
-              thumbColor={reminderEnabled ? '#ffffff' : '#f4f3f4'}
-            />
-          </View>
-  
-          {/* Time Picker for Reminder */}
-          {reminderEnabled && (
-            <View style={styles.timePickerContainer}>
-              <TouchableOpacity
-                style={styles.timeSelector}
-                onPress={() => setIsHourModalVisible(true)}
-              >
-                <Text style={styles.timeSelectorText}>{hour}</Text>
-              </TouchableOpacity>
-              <Text style={styles.colon}>:</Text>
-              <TouchableOpacity
-                style={styles.timeSelector}
-                onPress={() => setIsMinuteModalVisible(true)}
-              >
-                <Text style={styles.timeSelectorText}>{minute}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.timeSelectorAmPm}
-                onPress={() => setIsAmPmModalVisible(true)}
-              >
-                <Text style={styles.timeSelectorText}>{amPm}</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-  
-          {/* Save Changes Button */}
-          <Pressable onPress={updateHabit} style={styles.saveButton}>
-            <Text style={styles.saveButtonText}>Save Changes</Text>
-          </Pressable>
-  
-          {/* Hour Modal */}
-          <Modal
-            visible={isHourModalVisible}
-            transparent={true}
-            animationType="slide"
-            onRequestClose={() => setIsHourModalVisible(false)}
-          >
-            <View style={styles.modalBackground}>
-              <View style={styles.modalContainer}>
-                <Text style={styles.modalTitle}>Select Hour</Text>
-                <FlatList
-                  ref={hourListRef}
-                  data={hours}
-                  keyExtractor={(item) => item}
-                  renderItem={({ item }) => renderItem(item, 'hour')}
-                  getItemLayout={(data, index) => ({
-                    length: 50,
-                    offset: 50 * index,
-                    index,
-                  })}
-                  showsVerticalScrollIndicator={false}
+            <ScrollView
+                contentContainerStyle={styles.scrollContainer}
+                keyboardShouldPersistTaps="handled"
+            >
+                {/* Header */}
+                <View style={styles.headerContainer}>
+                    {/* CLICKING THIS WILL CANCEL EDIT AND GO HOME */}
+                    <Ionicons
+                        name="arrow-back"
+                        onPress={cancelEdit}
+                        size={24}
+                        color="black"
+                        style={styles.backIcon}
+                    />
+                    <Text style={styles.header}>Edit Habit</Text>
+                </View>
+
+                <View style={styles.emptyContainer}>
+                    <Image
+                        style={styles.emptyImage}
+                        source={require('../../../../assets/emoji.png')}
+                    />
+                </View>
+
+                {/* Title Input: Single underline + center alignment */}
+                <TextInput
+                    value={title}
+                    onChangeText={(text) => setTitle(text)}
+                    style={styles.titleInput}
+                    placeholder="Edit Habit Title"
+                    placeholderTextColor="#666"
+                    multiline={true}
                 />
-                <TouchableOpacity
-                  style={styles.closeButton}
-                  onPress={() => setIsHourModalVisible(false)}
+
+                {/* COLOR SELECTION */}
+                <View style={styles.sectionContainer}>
+                    <View style={styles.colorsContainer}>
+                        {colors.map((item, index) => (
+                            <TouchableOpacity
+                                onPress={() => setSelectedColor(item)}
+                                key={index}
+                                activeOpacity={0.8}
+                            >
+                                {selectedColor === item ? (
+                                    <AntDesign name="checkcircle" size={30} color={item} />
+                                ) : (
+                                    <FontAwesome name="circle" size={30} color={item} />
+                                )}
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </View>
+
+                {/* REPEAT MODE */}
+                <View style={styles.sectionContainer}>
+                    <View style={styles.row}>
+                        <Text style={styles.sectionHeader}>Repeat</Text>
+                    </View>
+                    <View style={styles.repeatContainer}>
+                        <Pressable
+                            onPress={() => setRepeatMode('daily')}
+                            style={[
+                                styles.repeatOption,
+                                repeatMode === 'daily' && styles.selectedOption,
+                            ]}
+                        >
+                            <Text
+                                style={[
+                                    styles.repeatText,
+                                    repeatMode === 'daily' && styles.repeatTextSelected,
+                                ]}
+                            >
+                                Daily
+                            </Text>
+                        </Pressable>
+
+                        <Pressable
+                            onPress={() => setRepeatMode('weekly')}
+                            style={[
+                                styles.repeatOption,
+                                repeatMode === 'weekly' && styles.selectedOption,
+                            ]}
+                        >
+                            <Text
+                                style={[
+                                    styles.repeatText,
+                                    repeatMode === 'weekly' && styles.repeatTextSelected,
+                                ]}
+                            >
+                                Weekly
+                            </Text>
+                        </Pressable>
+                    </View>
+                </View>
+
+                {/* DAYS (only if weekly) */}
+                {repeatMode === 'weekly' && (
+                    <View style={styles.sectionContainer}>
+                        <Text style={styles.sectionSubHeader}>On these days</Text>
+                        <View style={styles.daysContainer}>
+                            {daysOptions.map((day, index) => {
+                                const isSelected = selectedDays.includes(day);
+                                return (
+                                    <Pressable
+                                        key={index}
+                                        onPress={() => toggleDay(day)}
+                                        style={[styles.dayBox, isSelected && styles.selectedDay]}
+                                    >
+                                        <Text
+                                            style={[
+                                                styles.dayText,
+                                                isSelected && styles.selectedDayText,
+                                            ]}
+                                        >
+                                            {day}
+                                        </Text>
+                                    </Pressable>
+                                );
+                            })}
+                        </View>
+                    </View>
+                )}
+
+                {/* REMINDER */}
+                <View style={styles.sectionContainer}>
+                    <View style={styles.row}>
+                        <Text style={styles.sectionHeader}>Reminder</Text>
+                        <Switch
+                            value={reminderEnabled}
+                            onValueChange={(value) => setReminderEnabled(value)}
+                            trackColor={{ false: '#767577', true: '#db2859' }}
+                            thumbColor={reminderEnabled ? '#fff' : '#f4f3f4'}
+                        />
+                    </View>
+
+                    {reminderEnabled && (
+                        <View style={styles.timePickerContainer}>
+                            {/* Hour Selector */}
+                            <TouchableOpacity
+                                style={styles.timeSelector}
+                                onPress={() => setIsHourModalVisible(true)}
+                            >
+                                <Text style={styles.timeSelectorText}>{hour}</Text>
+                            </TouchableOpacity>
+
+                            <Text style={styles.colon}>:</Text>
+
+                            {/* Minute Selector */}
+                            <TouchableOpacity
+                                style={styles.timeSelector}
+                                onPress={() => setIsMinuteModalVisible(true)}
+                            >
+                                <Text style={styles.timeSelectorText}>{minute}</Text>
+                            </TouchableOpacity>
+
+                            {/* AM/PM Selector */}
+                            <TouchableOpacity
+                                style={styles.timeSelectorAmPm}
+                                onPress={() => setIsAmPmModalVisible(true)}
+                            >
+                                <Text style={styles.timeSelectorText}>{amPm}</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+                </View>
+
+                {/* SAVE CHANGES BUTTON */}
+                <Pressable
+                    onPress={updateHabit}
+                    style={[styles.saveButton, styles.saveButtonRow]}
                 >
-                  <Text style={styles.closeButtonText}>Close</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </Modal>
-  
-          {/* Minute Modal */}
-          <Modal
-            visible={isMinuteModalVisible}
-            transparent={true}
-            animationType="slide"
-            onRequestClose={() => setIsMinuteModalVisible(false)}
-          >
-            <View style={styles.modalBackground}>
-              <View style={styles.modalContainer}>
-                <Text style={styles.modalTitle}>Select Minute</Text>
-                <FlatList
-                  ref={minuteListRef}
-                  data={minutes}
-                  keyExtractor={(item) => item}
-                  renderItem={({ item }) => renderItem(item, 'minute')}
-                  getItemLayout={(data, index) => ({
-                    length: 50,
-                    offset: 50 * index,
-                    index,
-                  })}
-                  showsVerticalScrollIndicator={false}
-                />
-                <TouchableOpacity
-                  style={styles.closeButton}
-                  onPress={() => setIsMinuteModalVisible(false)}
+                    <Ionicons
+                        name="create-outline"
+                        size={20}
+                        color="#fff"
+                        style={styles.addIcon}
+                    />
+                    <Text style={styles.saveButtonText}>Save Changes</Text>
+                </Pressable>
+
+                {/* HOUR MODAL */}
+                <Modal
+                    visible={isHourModalVisible}
+                    transparent
+                    animationType="slide"
+                    onRequestClose={() => setIsHourModalVisible(false)}
                 >
-                  <Text style={styles.closeButtonText}>Close</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </Modal>
-  
-          {/* AM/PM Modal */}
-          <Modal
-            visible={isAmPmModalVisible}
-            transparent={true}
-            animationType="slide"
-            onRequestClose={() => setIsAmPmModalVisible(false)}
-          >
-            <View style={styles.modalBackground}>
-              <View style={styles.modalContainer}>
-                <Text style={styles.modalTitle}>Select AM/PM</Text>
-                <FlatList
-                  ref={amPmListRef}
-                  data={amPmOptions}
-                  keyExtractor={(item) => item}
-                  renderItem={({ item }) => renderItem(item, 'amPm')}
-                  getItemLayout={(data, index) => ({
-                    length: 50,
-                    offset: 50 * index,
-                    index,
-                  })}
-                  showsVerticalScrollIndicator={false}
-                />
-                <TouchableOpacity
-                  style={styles.closeButton}
-                  onPress={() => setIsAmPmModalVisible(false)}
+                    <View style={styles.modalBackground}>
+                        <View style={styles.modalContainer}>
+                            <Text style={styles.modalTitle}>Select Hour</Text>
+                            <FlatList
+                                ref={hourListRef}
+                                data={hours}
+                                keyExtractor={(item) => item}
+                                renderItem={({ item }) => renderItem(item, 'hour')}
+                                getItemLayout={(data, index) => ({
+                                    length: 50,
+                                    offset: 50 * index,
+                                    index,
+                                })}
+                                showsVerticalScrollIndicator={false}
+                            />
+                            <TouchableOpacity
+                                style={styles.closeButton}
+                                onPress={() => setIsHourModalVisible(false)}
+                            >
+                                <Text style={styles.closeButtonText}>Close</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
+
+                {/* MINUTE MODAL */}
+                <Modal
+                    visible={isMinuteModalVisible}
+                    transparent
+                    animationType="slide"
+                    onRequestClose={() => setIsMinuteModalVisible(false)}
                 >
-                  <Text style={styles.closeButtonText}>Close</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </Modal>
-        </ScrollView>
-      </KeyboardAvoidingView>
+                    <View style={styles.modalBackground}>
+                        <View style={styles.modalContainer}>
+                            <Text style={styles.modalTitle}>Select Minute</Text>
+                            <FlatList
+                                ref={minuteListRef}
+                                data={minutes}
+                                keyExtractor={(item) => item}
+                                renderItem={({ item }) => renderItem(item, 'minute')}
+                                getItemLayout={(data, index) => ({
+                                    length: 50,
+                                    offset: 50 * index,
+                                    index,
+                                })}
+                                showsVerticalScrollIndicator={false}
+                            />
+                            <TouchableOpacity
+                                style={styles.closeButton}
+                                onPress={() => setIsMinuteModalVisible(false)}
+                            >
+                                <Text style={styles.closeButtonText}>Close</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
+
+                {/* AM/PM MODAL */}
+                <Modal
+                    visible={isAmPmModalVisible}
+                    transparent
+                    animationType="slide"
+                    onRequestClose={() => setIsAmPmModalVisible(false)}
+                >
+                    <View style={styles.modalBackground}>
+                        <View style={styles.modalContainer}>
+                            <Text style={styles.modalTitle}>Select AM/PM</Text>
+                            <FlatList
+                                ref={amPmListRef}
+                                data={amPmOptions}
+                                keyExtractor={(item) => item}
+                                renderItem={({ item }) => renderItem(item, 'amPm')}
+                                getItemLayout={(data, index) => ({
+                                    length: 50,
+                                    offset: 50 * index,
+                                    index,
+                                })}
+                                showsVerticalScrollIndicator={false}
+                            />
+                            <TouchableOpacity
+                                style={styles.closeButton}
+                                onPress={() => setIsAmPmModalVisible(false)}
+                            >
+                                <Text style={styles.closeButtonText}>Close</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
-  };
-  
-  export default Update;
-  
-  const styles = StyleSheet.create({
+};
+
+export default Update;
+
+// You can keep your merged styles from previous step:
+const styles = StyleSheet.create({
+    // ... same styles from your "create" design ...
+    container: {
+        flex: 1,
+        backgroundColor: "#f1ebed",
+    },
     scrollContainer: {
-      padding: 10,
-      paddingBottom: 30,
+        padding: 10,
+        paddingBottom: 30,
     },
     headerContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: 20,
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 20,
+        marginTop: 10
     },
     backIcon: {
-      marginRight: 10,
+        marginLeft: 10,
+        marginRight: 15,
     },
     header: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      flexShrink: 1,
+        fontSize: 22,
+        fontWeight: "bold",
+        flexShrink: 1,
+        color: "black",
     },
-    input: {
-      width: '100%',
-      padding: 15,
-      borderRadius: 10,
-      backgroundColor: '#E1EBEE',
-      fontSize: 16,
-      color: '#000',
-      marginBottom: 15,
+    titleInput: {
+        borderBottomWidth: 2,
+        borderColor: "rgba(0, 0, 0, 0.4)",
+        textAlign: "center",
+        minHeight: 40,
+        fontSize: 16,
+        color: "#000",
+        marginBottom: 25,
+        marginTop: 25,
+        alignSelf: "center",
+        width: "60%",
     },
-    section: {
-      marginVertical: 10,
+    sectionContainer: {
+        backgroundColor: "white",
+        borderRadius: 8,
+        padding: 12,
+        marginBottom: 18,
+        marginHorizontal: 18,
     },
-    sectionTitle: {
-      fontSize: 18,
-      fontWeight: '500',
-      marginBottom: 10,
+    sectionHeader: {
+        fontSize: 18,
+        fontWeight: "600",
+        color: "#000",
+        marginHorizontal: 6,
+    },
+    row: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: 10,
+    },
+    sectionSubHeader: {
+        fontSize: 14,
+        fontWeight: "500",
+        marginBottom: 14,
+        color: "#000",
+        marginHorizontal: 6,
     },
     colorsContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      flexWrap: 'wrap',
-      gap: 10,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-around",
+        flexWrap: "wrap",
+        gap: 4,
     },
     repeatContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginHorizontal: 20,
+        gap: 10,
     },
     repeatOption: {
-      backgroundColor: '#AFDBF5',
-      paddingVertical: 10,
-      paddingHorizontal: 20,
-      borderRadius: 6,
-      flex: 0.48,
-      alignItems: 'center',
+        backgroundColor: "#E0E0E0",
+        paddingVertical: 5,
+        paddingHorizontal: 5,
+        borderRadius: 24,
+        flex: 1,
+        alignItems: "center",
     },
     selectedOption: {
-      backgroundColor: '#2774AE',
+        backgroundColor: "#db2859",
     },
     repeatText: {
-      textAlign: 'center',
-      color: '#000',
-      fontSize: 16,
+        textAlign: "center",
+        color: "#000",
+        fontSize: 16,
+    },
+    repeatTextSelected: {
+        color: "#fff",
     },
     daysContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      flexWrap: 'wrap',
-      gap: 10,
+        flexDirection: "row",
+        flexWrap: "wrap",
+        gap: 10,
+        justifyContent: "center",
     },
     dayBox: {
-      width: 40,
-      height: 40,
-      borderRadius: 5,
-      backgroundColor: '#E0E0E0',
-      justifyContent: 'center',
-      alignItems: 'center',
+        width: 35,
+        height: 35,
+        paddingVertical: 10,
+        paddingHorizontal: 5,
+        borderRadius: 5,
+        backgroundColor: "#E0E0E0",
+        justifyContent: "center",
+        alignItems: "center",
     },
     selectedDay: {
-      backgroundColor: '#2774AE',
+        backgroundColor: "#db2859",
     },
     dayText: {
-      color: '#000',
-      fontSize: 16,
+        color: "#000",
+        fontSize: 14,
     },
     selectedDayText: {
-      color: '#fff',
-      fontWeight: 'bold',
-      fontSize: 16,
+        color: "#fff",
+        fontWeight: "bold",
+        fontSize: 14,
     },
     reminderContainer: {
-      marginTop: 20,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingHorizontal: 10,
-    },
-    reminderText: {
-      fontSize: 17,
-      fontWeight: '500',
+        backgroundColor: "white",
+        borderRadius: 8,
+        padding: 12,
+        marginBottom: 18,
+        marginHorizontal: 18,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
     },
     timePickerContainer: {
-      marginTop: 10,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingHorizontal: 10,
+        marginTop: 10,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-around",
     },
     timeSelector: {
-      padding: 10,
-      backgroundColor: '#E1EBEE',
-      borderRadius: 10,
-      width: '30%',
-      alignItems: 'center',
+        padding: 10,
+        backgroundColor: "#E0E0E0",
+        borderRadius: 10,
+        width: "25%",
+        alignItems: "center",
     },
     timeSelectorAmPm: {
-      padding: 10,
-      backgroundColor: '#E1EBEE',
-      borderRadius: 10,
-      width: '20%',
-      alignItems: 'center',
+        padding: 10,
+        backgroundColor: "#E0E0E0",
+        borderRadius: 10,
+        width: "15%",
+        alignItems: "center",
     },
     timeSelectorText: {
-      fontSize: 16,
-      color: '#000',
+        fontSize: 16,
+        color: "#000",
     },
     colon: {
-      fontSize: 20,
-      fontWeight: 'bold',
-      marginHorizontal: 5,
+        fontSize: 20,
+        fontWeight: "bold",
+        marginHorizontal: 5,
+        color: "#000",
     },
     saveButton: {
-      marginTop: 25,
-      backgroundColor: '#00428c',
-      paddingVertical: 15,
-      borderRadius: 8,
-      alignItems: 'center',
-      marginHorizontal: 10,
+        marginTop: 10,
+        backgroundColor: "#db2859",
+        paddingVertical: 15,
+        borderRadius: 24,
+        alignItems: "center",
+        marginHorizontal: 18,
+    },
+    saveButtonRow: {
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    addIcon: {
+        marginRight: 8,
     },
     saveButtonText: {
-      color: 'white',
-      fontWeight: 'bold',
-      fontSize: 16,
+        color: "#fff",
+        fontWeight: "bold",
+        fontSize: 16,
     },
     modalBackground: {
-      flex: 1,
-      backgroundColor: 'rgba(0,0,0,0.5)',
-      justifyContent: 'center',
-      alignItems: 'center',
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.3)",
+        justifyContent: "center",
+        alignItems: "center",
     },
     modalContainer: {
-      width: '80%',
-      maxHeight: '60%',
-      backgroundColor: '#fff',
-      borderRadius: 10,
-      padding: 20,
+        backgroundColor: "#FFF",
+        borderRadius: 10,
+        width: "80%",
+        maxHeight: "60%",
+        padding: 20,
     },
     modalTitle: {
-      fontSize: 18,
-      fontWeight: '600',
-      marginBottom: 10,
-      textAlign: 'center',
+        fontSize: 18,
+        fontWeight: "600",
+        marginBottom: 10,
+        textAlign: "center",
+        color: "#000",
     },
     modalItem: {
-      paddingVertical: 15,
-      borderBottomWidth: 1,
-      borderColor: '#ccc',
-      alignItems: 'center',
+        padding: 15,
+        alignItems: "center",
     },
     modalItemText: {
-      fontSize: 16,
+        fontSize: 18,
+        color: "#000",
     },
     closeButton: {
-      marginTop: 10,
-      backgroundColor: '#2774AE',
-      padding: 10,
-      borderRadius: 5,
-      alignItems: 'center',
+        backgroundColor: "#db2859",
+        borderRadius: 8,
+        paddingHorizontal: 15,
+        paddingVertical: 10,
+        alignItems: "center",
+        marginTop: 10,
     },
     closeButtonText: {
-      color: '#fff',
-      fontSize: 16,
+        color: "#FFF",
+        fontWeight: "600",
+        fontSize: 16,
     },
-  });
-  
+    emptyImage: {
+        width: 80,
+        height: 80,
+        resizeMode: 'cover',
+    },
+    emptyContainer: {
+        marginTop: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: '10',
+    },
+});

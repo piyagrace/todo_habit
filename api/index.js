@@ -409,6 +409,68 @@ app.put("/habits/:habitId", async (req, res) => {
   }
 });
 
+// Helper function
+async function getDailyStatsForPastWeek(userId) {
+  const dailyStats = [];
+
+  // Loop from 6 days ago up to today (0)
+  for (let i = 6; i >= 0; i--) {
+    // Build a date for that day
+    const date = moment().subtract(i, "days").startOf("day");
+    const dayName = date.format("ddd"); // e.g. 'Mon', 'Tue'
+
+    // Start + end of the day
+    const startOfDay = date.toDate();
+    const endOfDay = moment(date).endOf("day").toDate();
+
+    // Count how many todos were "completed" that day
+    const completedCount = await Todo.countDocuments({
+      user: userId,
+      status: "completed",
+      createdAt: {
+        $gte: startOfDay,
+        $lte: endOfDay,
+      },
+    });
+
+    // Count how many todos were "pending" that day
+    const pendingCount = await Todo.countDocuments({
+      user: userId,
+      status: "pending",
+      createdAt: {
+        $gte: startOfDay,
+        $lte: endOfDay,
+      },
+    });
+
+    dailyStats.push({
+      day: dayName,
+      completed: completedCount,
+      pending: pendingCount,
+    });
+  }
+
+  return dailyStats; // e.g. [ {day:'Wed', completed:2, pending:4}, {...}, ... ]
+}
+
+// Your route that calls the helper:
+app.get("/users/:userId/todos/weekly-stats", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Call the helper to build "dailyStats" for the last 7 days
+    const dailyStats = await getDailyStatsForPastWeek(userId);
+
+    return res.status(200).json({ dailyStats });
+  } catch (error) {
+    console.error("Error in /users/:userId/todos/weekly-stats:", error);
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+
+
+
 
 
 

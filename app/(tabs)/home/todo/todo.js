@@ -10,14 +10,21 @@ import {
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { Alert } from "react-native";
-import { AntDesign, Feather, Entypo, MaterialIcons, FontAwesome } from "@expo/vector-icons";
+import {
+  AntDesign,
+  Feather,
+  Entypo,
+  MaterialIcons,
+  FontAwesome,
+  Ionicons,
+} from "@expo/vector-icons";
 import { BottomModal, ModalTitle, ModalContent } from "react-native-modals";
 import { SlideAnimation } from "react-native-modals";
 import axios from "axios";
 import moment from "moment";
 import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Picker } from '@react-native-picker/picker';
 import WeekCalendar from "../weekcalendar";
 
 const Todo = () => {
@@ -30,7 +37,7 @@ const Todo = () => {
   const [pendingTodos, setPendingTodos] = useState([]);
   const [completedTodos, setCompletedTodos] = useState([]);
   const [marked, setMarked] = useState(false);
-  const [userId, setUserId] = useState(null); // State to store userId
+  const [userId, setUserId] = useState(null);
 
   const suggestions = [
     { id: "0", todo: "Drink Water, keep healthy" },
@@ -65,18 +72,11 @@ const Todo = () => {
       const response = await axios.get(
         `http://192.168.100.5:3001/users/${uid}/todos`
       );
-
-      console.log("Fetched Todos:", response.data.todos);
-      setTodos(response.data.todos);
+      setTodos(response.data.todos || []);
 
       const fetchedTodos = response.data.todos || [];
-      const pending = fetchedTodos.filter(
-        (todo) => todo.status !== "completed"
-      );
-
-      const completed = fetchedTodos.filter(
-        (todo) => todo.status === "completed"
-      );
+      const pending = fetchedTodos.filter((td) => td.status !== "completed");
+      const completed = fetchedTodos.filter((td) => td.status === "completed");
 
       setPendingTodos(pending);
       setCompletedTodos(completed);
@@ -92,7 +92,6 @@ const Todo = () => {
       router.replace("/authenticate/login");
       return;
     }
-
     if (!todo.trim()) {
       Alert.alert("Validation Error", "Please enter a todo title.");
       return;
@@ -103,14 +102,9 @@ const Todo = () => {
         title: todo.trim(),
         category: category,
       };
-
-      const response = await axios.post(
-        `http://192.168.100.5:3001/todos/${userId}`,
-        todoData
-      );
-
-      console.log("Add Todo Response:", response.data);
+      await axios.post(`http://192.168.100.5:3001/todos/${userId}`, todoData);
       await getUserTodos(userId);
+
       setModalVisible(false);
       setTodo("");
       Alert.alert("Success", "Todo added successfully!");
@@ -129,10 +123,7 @@ const Todo = () => {
 
     try {
       setMarked(true);
-      const response = await axios.patch(
-        `http://192.168.100.5:3001/todos/${todoId}/complete`
-      );
-      console.log("Mark Completed Response:", response.data);
+      await axios.patch(`http://192.168.100.5:3001/todos/${todoId}/complete`);
       await getUserTodos(userId);
     } catch (error) {
       console.log("Error marking todo as completed:", error);
@@ -155,34 +146,43 @@ const Todo = () => {
 
   return (
     <>
-      {/* Category Filters and Add Button */}
-
-      <View><WeekCalendar /></View>
-      <ScrollView style={styles.scrollView}>
-      <View style={styles.categoryContainer}>
-        {["All", "Work", "Personal"].map((cat) => (
-          <Pressable
-            key={cat}
-            style={[
-              styles.categoryButton,
-              category === cat && styles.activeCategoryButton,
-            ]}
-            onPress={() => setCategory(cat)}
-          >
-            <Text
-              style={[
-                styles.categoryText,
-                category === cat && styles.activeCategoryText,
-              ]}
-            >
-              {cat}
-            </Text>
-          </Pressable>
-        ))}
-          <AntDesign onPress={() => setModalVisible(true)} name="plus" size={24} color="black" style={styles.addIcon} />
+      {/* Week Calendar on Top */}
+      <View>
+        <WeekCalendar />
       </View>
 
-      {/* Todos List */}
+      <ScrollView style={styles.scrollView}>
+        {/* Category Filters + Add Todo */}
+        <View style={styles.categoryContainer}>
+          {["All", "Work", "Personal"].map((cat) => (
+            <Pressable
+              key={cat}
+              style={[
+                styles.categoryButton,
+                category === cat && styles.activeCategoryButton,
+              ]}
+              onPress={() => setCategory(cat)}
+            >
+              <Text
+                style={[
+                  styles.categoryText,
+                  category === cat && styles.activeCategoryText,
+                ]}
+              >
+                {cat}
+              </Text>
+            </Pressable>
+          ))}
+          <AntDesign
+            onPress={() => setModalVisible(true)}
+            name="plus"
+            size={24}
+            color="black"
+            style={styles.addIcon}
+          />
+        </View>
+
+        {/* Todos List */}
         <View style={styles.todosContainer}>
           {todos.length > 0 ? (
             <View>
@@ -190,7 +190,6 @@ const Todo = () => {
               {pendingTodos.length > 0 && (
                 <Text style={styles.sectionTitle}>Ongoing Tasks!</Text>
               )}
-
               {pendingTodos.map((item) => (
                 <Pressable
                   key={item._id}
@@ -201,7 +200,7 @@ const Todo = () => {
                     <Entypo
                       name="circle"
                       size={18}
-                      color="black"
+                      color="#db2859"
                       onPress={() => markTodoAsCompleted(item._id)}
                     />
                     <Text style={styles.todoTitle}>{item.title}</Text>
@@ -215,14 +214,21 @@ const Todo = () => {
                 <View>
                   <View style={styles.completedHeader}>
                     <Text style={styles.sectionTitle}>Completed Tasks</Text>
-                    <MaterialIcons name="arrow-drop-down" size={24} color="black"
+                    <MaterialIcons
+                      name="arrow-drop-down"
+                      size={24}
+                      color="black"
                     />
                   </View>
 
                   {completedTodos.map((item) => (
                     <Pressable key={item._id} style={styles.completedTodoBox}>
                       <View style={styles.todoRow}>
-                        <FontAwesome name="circle" size={18} color="gray" />
+                        <FontAwesome
+                          name="circle"
+                          size={18}
+                          color="rgba(219, 40, 89, 0.6)"
+                        />
                         <Text style={styles.completedTodoTitle}>
                           {item.title}
                         </Text>
@@ -237,9 +243,7 @@ const Todo = () => {
             <View style={styles.noTodosContainer}>
               <Image
                 style={styles.noTodosImage}
-                source={{
-                  uri: "https://cdn-icons-png.flaticon.com/128/2387/2387679.png",
-                }}
+                source={require("../../../../assets/todo.png")}
               />
               <Text style={styles.noTodosText}>
                 No Tasks for today! Add a task
@@ -248,7 +252,7 @@ const Todo = () => {
                 onPress={() => setModalVisible(true)}
                 style={styles.addTodoButton}
               >
-                <AntDesign name="pluscircle" size={30} color="#007FFF" />
+                <AntDesign name="pluscircle" size={30} color="#db2859" />
               </Pressable>
             </View>
           )}
@@ -262,11 +266,7 @@ const Todo = () => {
         swipeDirection={["up", "down"]}
         swipeThreshold={200}
         modalTitle={<ModalTitle title="Add a Todo" />}
-        modalAnimation={
-          new SlideAnimation({
-            slideFrom: "bottom",
-          })
-        }
+        modalAnimation={new SlideAnimation({ slideFrom: "bottom" })}
         visible={isModalVisible}
         onTouchOutside={() => setModalVisible(false)}
       >
@@ -279,12 +279,7 @@ const Todo = () => {
               placeholder="Input a new task here"
               style={styles.modalTextInput}
             />
-            <Ionicons
-              onPress={addTodo}
-              name="send"
-              size={24}
-              color="#007FFF"
-            />
+            <Ionicons onPress={addTodo} name="send" size={24} color="#007FFF" />
           </View>
 
           {/* Category Selection */}
@@ -350,23 +345,20 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   activeCategoryButton: {
-    backgroundColor: '#db2859',
+    backgroundColor: "#db2859",
   },
   categoryText: {
     color: "black",
     textAlign: "center",
-    fontSize: 14
+    fontSize: 14,
   },
   activeCategoryText: {
     fontWeight: "bold",
-    color: "white"
+    color: "white",
   },
   scrollView: {
     flex: 1,
     backgroundColor: "#f1ebed",
-  },
-  togglebutton: {
-    backgroundColor: "#f2f2f2",
   },
   todosContainer: {
     padding: 10,
@@ -376,14 +368,14 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginTop: 9,
     marginBottom: 8,
-    marginLeft: 16
+    marginLeft: 16,
   },
   todoBox: {
     backgroundColor: "white",
     padding: 10,
     borderRadius: 10,
     marginVertical: 7,
-    marginHorizontal: 15
+    marginHorizontal: 15,
   },
   todoRow: {
     flexDirection: "row",
@@ -398,43 +390,20 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginVertical: 6,
-    gap: 5
+    gap: 5,
   },
   completedTodoBox: {
     backgroundColor: "white",
     padding: 10,
     borderRadius: 10,
     marginVertical: 7,
-    marginHorizontal: 15
+    marginHorizontal: 15,
   },
   completedTodoTitle: {
     flex: 1,
     textDecorationLine: "line-through",
     color: "gray",
     fontSize: 15,
-  },
-  chartStyle: {
-    borderRadius: 16,
-  },
-  upcomingTasks: {
-    backgroundColor: "#89CFF0",
-    padding: 10,
-    borderRadius: 6,
-    marginTop: 15,
-  },
-  upcomingTasksText: {
-    textAlign: "center",
-    color: "white",
-    fontSize: 16,
-  },
-  decorativeImageContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 20,
-  },
-  decorativeImage: {
-    width: 120,
-    height: 120,
   },
   noTodosContainer: {
     flex: 1,
@@ -445,8 +414,8 @@ const styles = StyleSheet.create({
     marginRight: "auto",
   },
   noTodosImage: {
-    width: 200,
-    height: 200,
+    width: 130,
+    height: 130,
     resizeMode: "contain",
   },
   noTodosText: {
@@ -524,5 +493,5 @@ const styles = StyleSheet.create({
   addIcon: {
     marginLeft: "auto",
     marginRight: 10,
-  }
+  },
 });
