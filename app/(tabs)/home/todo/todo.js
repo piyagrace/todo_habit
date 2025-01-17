@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  Modal,
   View,
 } from "react-native";
 import React, { useState, useEffect } from "react";
@@ -24,7 +25,7 @@ import axios from "axios";
 import moment from "moment";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Picker } from '@react-native-picker/picker';
+import { Picker } from "@react-native-picker/picker";
 import WeekCalendar from "../weekcalendar";
 
 const Todo = () => {
@@ -38,6 +39,10 @@ const Todo = () => {
   const [completedTodos, setCompletedTodos] = useState([]);
   const [marked, setMarked] = useState(false);
   const [userId, setUserId] = useState(null);
+
+  // For our modal
+  const [selectedTodo, setSelectedTodo] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const suggestions = [
     { id: "0", todo: "Drink Water, keep healthy" },
@@ -72,9 +77,9 @@ const Todo = () => {
       const response = await axios.get(
         `http://192.168.100.5:3001/users/${uid}/todos`
       );
-      setTodos(response.data.todos || []);
-
       const fetchedTodos = response.data.todos || [];
+      setTodos(fetchedTodos);
+
       const pending = fetchedTodos.filter((td) => td.status !== "completed");
       const completed = fetchedTodos.filter((td) => td.status === "completed");
 
@@ -131,17 +136,95 @@ const Todo = () => {
     }
   };
 
-  const navigateToTodoDetails = (item) => {
-    router.push({
-      pathname: "/home/todo/info",
-      params: {
-        id: item._id,
-        title: item.title,
-        category: item.category,
-        createdAt: item.createdAt,
-        dueDate: item.dueDate,
-      },
-    });
+  /**
+   * Show the modal by selecting the todo
+   */
+  const handlePress = (todoId) => {
+    const selected = todos.find((t) => t._id === todoId);
+    if (!selected) {
+      Alert.alert("Error", "Selected todo not found.");
+      return;
+    }
+    setSelectedTodo(selected);
+  };
+
+  // Close the modal
+  const closeModal = () => {
+    setSelectedTodo(null);
+  };
+
+  /**
+   * Navigate to Update screen
+   */
+  const handleUpdate = () => {
+    if (!selectedTodo || !selectedTodo._id) {
+      Alert.alert("Error", "No todo selected.");
+      return;
+    }
+    closeModal();
+    setTimeout(() => {
+      router.push({
+        pathname: "/home/todo/update",
+        params: { todoId: selectedTodo._id },
+      });
+    }, 200);
+  };
+
+  /**
+   * Navigate to View screen
+   */
+  const handleView = () => {
+    if (!selectedTodo || !selectedTodo._id) {
+      Alert.alert("Error", "No todo selected.");
+      return;
+    }
+    closeModal();
+    setTimeout(() => {
+      router.push({
+        pathname: "/home/todo/view",
+        params: { todoId: selectedTodo._id },
+      });
+    }, 200);
+  };
+
+  /**
+   * Delete a todo
+   */
+  const deleteTodo = () => {
+    if (!selectedTodo) {
+      Alert.alert("Error", "No todo selected for deletion.");
+      return;
+    }
+    Alert.alert(
+      "Confirm Deletion",
+      `Are you sure you want to delete "${selectedTodo.title}"?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setIsDeleting(true);
+              const todoId = selectedTodo._id;
+              const response = await axios.delete(
+                `http://192.168.100.5:3001/todos/${todoId}`,
+                { data: { userId } }
+              );
+              if (response.status === 200) {
+                Alert.alert("Success", "Todo deleted successfully!");
+                await getUserTodos(userId);
+                closeModal();
+              }
+            } catch (error) {
+              Alert.alert("Error", "Failed to delete todo.");
+            } finally {
+              setIsDeleting(false);
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -194,7 +277,7 @@ const Todo = () => {
                 <Pressable
                   key={item._id}
                   style={styles.todoBox}
-                  onPress={() => navigateToTodoDetails(item)}
+                  onPress={() => handlePress(item._id)}
                 >
                   <View style={styles.todoRow}>
                     <Entypo
@@ -245,9 +328,7 @@ const Todo = () => {
                 style={styles.noTodosImage}
                 source={require("../../../../assets/todo.png")}
               />
-              <Text style={styles.noTodosText}>
-                No Tasks for today! Add a task
-              </Text>
+              <Text style={styles.noTodosText}>No Tasks for today! Add a task</Text>
               <Pressable
                 onPress={() => setModalVisible(true)}
                 style={styles.addTodoButton}
@@ -259,7 +340,70 @@ const Todo = () => {
         </View>
       </ScrollView>
 
-      {/* Add Todo Modal */}
+      {/* Modal when a todo is selected */}
+      <Modal
+        visible={!!selectedTodo}
+        transparent
+        animationType="slide"
+        onRequestClose={closeModal}
+      >
+        <Pressable style={styles.modalBackdrop} onPress={closeModal}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>
+              {selectedTodo ? selectedTodo.title : "Todo Title"}
+            </Text>
+
+            <View style={styles.divider} />
+
+            {/* 
+              Put all three options in a vertical column, 
+              aligned to the left (default). 
+            */}
+            <View style={styles.modalOptionsContainer}>
+              {/* View */}
+              <Pressable
+                onPress={handleView}
+                style={[styles.modalOption, isDeleting && styles.disabledOption]}
+                disabled={isDeleting}
+              >
+                <Ionicons
+                  name="eye-outline"
+                  size={24}
+                  color={isDeleting ? "gray" : "#db2859"}
+                />
+                <Text style={styles.modalOptionText}>View</Text>
+              </Pressable>
+
+              {/* Edit */}
+              <Pressable
+                onPress={handleUpdate}
+                style={[styles.modalOption, isDeleting && styles.disabledOption]}
+                disabled={isDeleting}
+              >
+                <Ionicons name="create-outline" size={24} color="#db2859" />
+                <Text style={styles.modalOptionText}>Edit</Text>
+              </Pressable>
+
+              {/* Delete */}
+              <Pressable
+                onPress={deleteTodo}
+                style={[styles.modalOption, isDeleting && styles.disabledOption]}
+                disabled={isDeleting}
+              >
+                <Ionicons
+                  name="trash-outline"
+                  size={24}
+                  color={isDeleting ? "gray" : "#db2859"}
+                />
+                <Text style={styles.modalOptionText}>Delete</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Pressable>
+      </Modal>
+
+      {/* Add Todo Modal (if still in use) */}
+      {/*
       <BottomModal
         onBackdropPress={() => setModalVisible(false)}
         onHardwareBackPress={() => setModalVisible(false)}
@@ -271,7 +415,6 @@ const Todo = () => {
         onTouchOutside={() => setModalVisible(false)}
       >
         <ModalContent style={styles.modalContent}>
-          {/* Todo Input */}
           <View style={styles.modalInputContainer}>
             <TextInput
               value={todo}
@@ -282,7 +425,6 @@ const Todo = () => {
             <Ionicons onPress={addTodo} name="send" size={24} color="#007FFF" />
           </View>
 
-          {/* Category Selection */}
           <Text style={styles.modalSectionTitle}>Choose Category</Text>
           <View style={styles.categorySelection}>
             {["Work", "Personal", "WishList"].map((cat) => (
@@ -306,7 +448,6 @@ const Todo = () => {
             ))}
           </View>
 
-          {/* Suggestions */}
           <Text style={styles.modalSectionTitle}>Some Suggestions</Text>
           <View style={styles.suggestionsContainer}>
             {suggestions.map((item) => (
@@ -321,6 +462,7 @@ const Todo = () => {
           </View>
         </ModalContent>
       </BottomModal>
+      */}
     </>
   );
 };
@@ -427,6 +569,56 @@ const styles = StyleSheet.create({
   addTodoButton: {
     marginTop: 15,
   },
+  addIcon: {
+    marginLeft: "auto",
+    marginRight: 10,
+  },
+
+  // MODAL
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "flex-end",
+  },
+  modalBox: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 25,
+    minHeight: 200,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    marginBottom: 15,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "rgba(213, 220, 230, 0.46)",
+    marginVertical: 5,
+  },
+  // Container to stack options vertically
+  modalOptionsContainer: {
+    flexDirection: "column",
+    // This ensures each Pressable remains left-aligned by default
+    alignItems: "flex-start",
+    // If you want some spacing from top, you can do marginTop: 10
+  },
+  modalOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginVertical: 10,
+  },
+  modalOptionText: {
+    fontSize: 14,
+    color: "#000",
+  },
+  disabledOption: {
+    opacity: 0.5,
+  },
+
+  // For the BottomModal content (if you keep using it)
   modalContent: {
     width: "100%",
     height: 280,
@@ -489,9 +681,5 @@ const styles = StyleSheet.create({
   },
   suggestionText: {
     textAlign: "center",
-  },
-  addIcon: {
-    marginLeft: "auto",
-    marginRight: 10,
   },
 });
