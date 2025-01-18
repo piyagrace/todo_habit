@@ -41,7 +41,7 @@ const index = () => {
       const token = await AsyncStorage.getItem("authToken");
 
       // 1. Fetch user info for the name
-      const userResponse = await axios.get(`http://192.168.1.50:3001/users/${userId}`, {
+      const userResponse = await axios.get(`http://192.168.0.112:3001/users/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -51,7 +51,7 @@ const index = () => {
 
       // 2. Fetch tasks count for that user
       const todosCountResponse = await axios.get(
-        `http://192.168.1.50:3001/users/${userId}/todos/count`,
+        `http://192.168.0.112:3001/users/${userId}/todos/count`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

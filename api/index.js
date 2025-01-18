@@ -7,6 +7,7 @@ const app = express();
 const port = 3001;
 const cors = require("cors");
 app.use(cors());
+app.use(express.json());
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -132,21 +133,23 @@ app.post("/todos/:userId", async (req, res) => {
 });
 
 
-app.get("/users/:userId/todos", async (req, res) => {
+app.get("/todos/:todoId", async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const todoId = req.params.todoId;
 
-    const user = await User.findById(userId).populate("todos");
-    if (!user) {
-      return res.status(404).json({ error: "user not found" });
+    const todo = await Todo.findById(todoId);
+    if (!todo) {
+      return res.status(404).json({ error: "Todo not found" });
     }
 
-    res.status(200).json({ todos: user.todos });
+    res.status(200).json({ todo });
   } catch (error) {
     res.status(500).json({ error: "Something went wrong" });
   }
 });
 
+
+// /todos/:todoId/complete endpoint
 app.patch("/todos/:todoId/complete", async (req, res) => {
   try {
     const todoId = req.params.todoId;
@@ -170,6 +173,48 @@ app.patch("/todos/:todoId/complete", async (req, res) => {
     res.status(500).json({ error: "Something went wrong" });
   }
 });
+
+//Edit Function
+app.patch("/todos/:todoId", async (req, res) => {
+  try {
+    const { todoId } = req.params;
+    const { title, category } = req.body;
+
+    const updatedTodo = await Todo.findByIdAndUpdate(
+      todoId,
+      { title, category },
+      { new: true }
+    );
+
+    if (!updatedTodo) {
+      return res.status(404).json({ error: "Todo not found" });
+    }
+
+    res.status(200).json({ message: "Todo updated successfully", todo: updatedTodo });
+  } catch (error) {
+    console.log("Error updating todo:", error);
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+//Delete Function
+app.delete("/todos/:todoId", async (req, res) => {
+  try {
+    const { todoId } = req.params;
+
+    const deletedTodo = await Todo.findByIdAndDelete(todoId);
+
+    if (!deletedTodo) {
+      return res.status(404).json({ error: "Todo not found" });
+    }
+
+    res.status(200).json({ message: "Todo deleted successfully", todo: deletedTodo });
+  } catch (error) {
+    console.log("Error deleting todo:", error);
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
 
 // Example user-specific endpoint (calendar)
 app.get("/users/:userId/todos/completed/:date", async (req, res) => {

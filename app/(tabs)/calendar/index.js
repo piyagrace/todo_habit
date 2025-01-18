@@ -60,7 +60,7 @@ const index = () => {
     try {
       // Example endpoint: /users/:userId/todos/completed/:date
       const response = await axios.get(
-        `http://192.168.1.50:3001/users/${uid}/todos/completed/${date}`
+        `http://192.168.0.112:3001/users/${uid}/todos/completed/${date}`
       );
       const completedTodos = response.data.completedTodos || [];
       setTodos(completedTodos);
