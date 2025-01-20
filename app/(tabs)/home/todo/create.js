@@ -70,17 +70,17 @@ import {
       }
     };
   
-    const addHabit = async () => {
+    const addTask = async () => {
       try {
         // Basic Validation
         if (!title.trim()) {
-          Alert.alert("Validation Error", "Please enter a title for the habit.");
+          Alert.alert("Validation Error", "Please enter a title for the task.");
           return;
         }
-        if (!selectedColor) {
-          Alert.alert("Validation Error", "Please select a color for the habit.");
+        /*if (!selectedColor) {
+          Alert.alert("Validation Error", "Please select a color for the task.");
           return;
-        }
+        } */
         // If repeat is ON but user selected "weekly" and no days
         if (repeatEnabled && repeatMode === "weekly" && selectedDays.length === 0) {
           Alert.alert("Validation Error", "Please select at least one day for weekly repeat.");
@@ -108,7 +108,7 @@ import {
         const finalRepeatMode = repeatEnabled ? repeatMode : "none";
   
         // Build request
-        const habitDetails = {
+        const todoDetails = {
           title: title.trim(),
           color: selectedColor,
           repeatMode: finalRepeatMode,
@@ -123,8 +123,8 @@ import {
         };
   
         const response = await axios.post(
-          "http://192.168.100.5:3001/habits",
-          habitDetails
+          "http://192.168.100.5:3001/todos",
+          todoDetails
         );
   
         if (response.status === 201) {
@@ -138,11 +138,11 @@ import {
           setHour("12");
           setMinute("00");
           setAmPm("AM");
-          Alert.alert("Success", "Habit added successfully!");
+          Alert.alert("Success", "Task added successfully!");
           router.push("/home");
         }
       } catch (error) {
-        console.log("Error adding habit", error);
+        console.log("Error adding task", error);
         if (error.response && error.response.data && error.response.data.error) {
           Alert.alert("Error", error.response.data.error);
         } else if (error.request) {
@@ -151,7 +151,7 @@ import {
             "Unable to reach the server. Please try again later."
           );
         } else {
-          Alert.alert("Error", "There was a problem adding your habit.");
+          Alert.alert("Error", "There was a problem adding your task.");
         }
       }
     };
@@ -266,7 +266,7 @@ import {
             )}
           </View>
   
-          <Pressable onPress={addHabit} style={[styles.saveButton, styles.saveButtonRow]}>
+          <Pressable onPress={addTask} style={[styles.saveButton, styles.saveButtonRow]}>
             <Ionicons name="add-outline" size={20} color="#fff" style={styles.addIcon} />
             <Text style={styles.saveButtonText}>Add task</Text>
           </Pressable>

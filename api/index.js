@@ -86,23 +86,6 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/users/:userId", async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const user = await User.findById(userId).select("name email"); 
-    // .select(...) to limit fields if you like
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    res.status(200).json({ user });
-  } catch (error) {
-    console.log("Error fetching user by ID:", error);
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
 app.post("/todos/:userId", async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -135,19 +118,23 @@ app.post("/todos/:userId", async (req, res) => {
 
 app.get("/users/:userId/todos", async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const { userId } = req.params;
 
-    const user = await User.findById(userId).populate("todos");
-    if (!user) {
-      return res.status(404).json({ error: "user not found" });
+    // Find all Todos associated with the user
+    const todos = await Todo.find({ user: userId });
+
+    if (!todos) {
+      return res.status(404).json({ error: "No todos found for this user" });
     }
 
-    res.status(200).json({ todos: user.todos });
+    res.status(200).json({ todos });
   } catch (error) {
+    console.log("Error fetching todos:", error);
     res.status(500).json({ error: "Something went wrong" });
   }
 });
 
+// /todos/:todoId/complete endpoint
 app.patch("/todos/:todoId/complete", async (req, res) => {
   try {
     const todoId = req.params.todoId;
@@ -168,6 +155,47 @@ app.patch("/todos/:todoId/complete", async (req, res) => {
       .status(200)
       .json({ message: "Todo marked as complete", todo: updatedTodo });
   } catch (error) {
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+//Edit Function
+app.patch("/todos/:todoId", async (req, res) => {
+  try {
+    const { todoId } = req.params;
+    const { title, category } = req.body;
+
+    const updatedTodo = await Todo.findByIdAndUpdate(
+      todoId,
+      { title, category },
+      { new: true }
+    );
+
+    if (!updatedTodo) {
+      return res.status(404).json({ error: "Todo not found" });
+    }
+
+    res.status(200).json({ message: "Todo updated successfully", todo: updatedTodo });
+  } catch (error) {
+    console.log("Error updating todo:", error);
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+//Delete Function
+app.delete("/todos/:todoId", async (req, res) => {
+  try {
+    const { todoId } = req.params;
+
+    const deletedTodo = await Todo.findByIdAndDelete(todoId);
+
+    if (!deletedTodo) {
+      return res.status(404).json({ error: "Todo not found" });
+    }
+
+    res.status(200).json({ message: "Todo deleted successfully", todo: deletedTodo });
+  } catch (error) {
+    console.log("Error deleting todo:", error);
     res.status(500).json({ error: "Something went wrong" });
   }
 });
