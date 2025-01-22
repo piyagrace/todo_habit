@@ -63,7 +63,7 @@ import {
     const getUserTodos = async (uid) => {
       try {
         const response = await axios.get(
-          `http://192.168.100.5:3001/users/${uid}/todos`
+          `http://192.168.1.50:3001/users/${uid}/todos`
         );
   
         console.log("Fetched Todos:", response.data.todos);
@@ -105,7 +105,7 @@ import {
         };
   
         const response = await axios.post(
-          `http://192.168.100.5:3001/todos/${userId}`,
+          `http://192.168.1.50:3001/todos/${userId}`,
           todoData
         );
   
@@ -130,7 +130,7 @@ import {
       try {
         setMarked(true);
         const response = await axios.patch(
-          `http://192.168.100.5:3001/todos/${todoId}/complete`
+          `http://192.168.1.50:3001/todos/${todoId}/complete`
         );
         console.log("Mark Completed Response:", response.data);
         await getUserTodos(userId);

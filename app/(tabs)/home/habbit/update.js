@@ -76,7 +76,7 @@ const Update = () => {
 
     const fetchHabitData = async (id) => {
         try {
-            const response = await axios.get(`http://192.168.100.5:3001/habits/${id}`);
+            const response = await axios.get(`http://192.168.1.50:3001/habits/${id}`);
             const habit = response.data;
             console.log('Fetched habit for update:', habit);
 
@@ -161,7 +161,7 @@ const Update = () => {
             };
 
             const response = await axios.put(
-                `http://192.168.100.5:3001/habits/${habitId}`,
+                `http://192.168.1.50:3001/habits/${habitId}`,
                 updatedHabitData
             );
 

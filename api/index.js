@@ -14,6 +14,10 @@ app.use(bodyParser.json());
 const jwt = require("jsonwebtoken");
 const moment = require("moment");
 
+const User = require("./models/user");
+const Todo = require("./models/todo");
+const Habit = require("./models/habit");
+
 mongoose
   .connect("mongodb+srv://aserdeyu:aserdeyu@cluster0.xuxhj.mongodb.net/")
   .then(() => {
@@ -26,10 +30,6 @@ mongoose
 app.listen(port, () => {
   console.log("Server is running on port 3001");
 });
-
-const User = require("./models/user");
-const Todo = require("./models/todo");
-const Habit = require("./models/habit");
 
 app.post("/register", async (req, res) => {
   try {
@@ -106,13 +106,19 @@ app.get("/users/:userId", async (req, res) => {
 app.post("/todos/:userId", async (req, res) => {
   try {
     const userId = req.params.userId;
-    const { title, category } = req.body;
+    const { title, category, dueDate } = req.body;
+
+    if (!title || !category) {
+      return res.status(400).json({ error: "Title and category are required" });
+    }
+
+    const formattedDueDate = dueDate ? moment(dueDate).toISOString() : null;
 
     const newTodo = new Todo({
       title,
       category,
-      user: userId, // <--- Associate todo with the user
-      dueDate: moment().format("YYYY-MM-DD"),
+      dueDate: formattedDueDate, // This will be null if no date is provided
+      user: userId,
     });
 
     await newTodo.save();
@@ -132,6 +138,29 @@ app.post("/todos/:userId", async (req, res) => {
   }
 });
 
+app.delete("/todos/:todoId", async (req, res) => {
+  try {
+    const { todoId } = req.params;
+
+    // Validate todoId format
+    if (!mongoose.Types.ObjectId.isValid(todoId)) {
+      return res.status(400).json({ error: "Invalid todoId format." });
+    }
+
+    // Attempt to delete the todo
+    const deletedTodo = await Todo.findByIdAndDelete(todoId);
+
+    // Check if todo was found and deleted
+    if (!deletedTodo) {
+      return res.status(404).json({ error: "Todo not found." });
+    }
+
+    res.status(200).json({ message: "Todo deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting todo:", error);
+    res.status(500).json({ error: "Unable to delete the Todo" });
+  }
+});
 
 app.get("/users/:userId/todos", async (req, res) => {
   try {

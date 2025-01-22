@@ -75,7 +75,7 @@ const Todo = () => {
   const getUserTodos = async (uid) => {
     try {
       const response = await axios.get(
-        `http://192.168.100.5:3001/users/${uid}/todos`
+        `http://192.168.1.50:3001/users/${uid}/todos`
       );
       const fetchedTodos = response.data.todos || [];
       setTodos(fetchedTodos);
@@ -107,7 +107,7 @@ const Todo = () => {
         title: todo.trim(),
         category: category,
       };
-      await axios.post(`http://192.168.100.5:3001/todos/${userId}`, todoData);
+      await axios.post(`http://192.168.1.50:3001/todos/${userId}`, todoData);
       await getUserTodos(userId);
 
       setModalVisible(false);
@@ -128,7 +128,7 @@ const Todo = () => {
 
     try {
       setMarked(true);
-      await axios.patch(`http://192.168.100.5:3001/todos/${todoId}/complete`);
+      await axios.patch(`http://192.168.1.50:3001/todos/${todoId}/complete`);
       await getUserTodos(userId);
     } catch (error) {
       console.log("Error marking todo as completed:", error);
@@ -208,7 +208,7 @@ const Todo = () => {
               setIsDeleting(true);
               const todoId = selectedTodo._id;
               const response = await axios.delete(
-                `http://192.168.100.5:3001/todos/${todoId}`,
+                `http://192.168.1.50:3001/todos/${todoId}`,
                 { data: { userId } }
               );
               if (response.status === 200) {

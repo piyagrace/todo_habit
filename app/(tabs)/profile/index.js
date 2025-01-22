@@ -45,12 +45,12 @@ const ProfileScreen = () => {
       }
 
       const token = await AsyncStorage.getItem("authToken");
-      const userResponse = await axios.get(`http://192.168.100.5:3001/users/${userId}`, {
+      const userResponse = await axios.get(`http://192.168.1.50:3001/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUserName(userResponse.data.user.name);
 
-      const todosCountResponse = await axios.get(`http://192.168.100.5:3001/users/${userId}/todos/count`, {
+      const todosCountResponse = await axios.get(`http://192.168.1.50:3001/users/${userId}/todos/count`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const { totalCompletedTodos, totalPendingTodos } = todosCountResponse.data;
@@ -67,7 +67,7 @@ const ProfileScreen = () => {
     try {
       const userId = await AsyncStorage.getItem("userId");
       if (!userId) return;
-      const response = await axios.get(`http://192.168.100.5:3001/users/${userId}/todos/weekly-stats`);
+      const response = await axios.get(`http://192.168.1.50:3001/users/${userId}/todos/weekly-stats`);
       const { dailyStats } = response.data;
       if (!dailyStats || !Array.isArray(dailyStats) || dailyStats.length === 0) {
         setWeeklyStats({ labels: [], completedData: [], pendingData: [] });
