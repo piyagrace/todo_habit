@@ -106,7 +106,7 @@ app.get("/users/:userId", async (req, res) => {
 app.post("/todos/:userId", async (req, res) => {
   try {
     const userId = req.params.userId;
-    const { title, category, dueDate } = req.body;
+    const { title, category, notes, dueDate } = req.body;
 
     if (!title || !category) {
       return res.status(400).json({ error: "Title and category are required" });
@@ -117,6 +117,7 @@ app.post("/todos/:userId", async (req, res) => {
     const newTodo = new Todo({
       title,
       category,
+      notes,
       dueDate: formattedDueDate, // This will be null if no date is provided
       user: userId,
     });
@@ -162,6 +163,54 @@ app.delete("/todos/:todoId", async (req, res) => {
   }
 });
 
+// GET single todo by ID
+app.get("/todos/:todoId", async (req, res) => {
+  try {
+    const { todoId } = req.params;
+    const todo = await Todo.findById(todoId);
+    if (!todo) {
+      return res.status(404).json({ error: "Todo not found." });
+    }
+
+    res.status(200).json(todo);
+  } catch (error) {
+    console.error("Error fetching single todo:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+app.put("/todos/:todoId", async (req, res) => {
+  try {
+    const { todoId } = req.params;
+    const updateData = req.body;
+
+    // Optional: Validate user ownership (assuming `userId` is passed in the request body)
+    const { userId } = updateData;
+    if (userId) {
+      const todo = await Todo.findOne({ _id: todoId, user: userId });
+      if (!todo) {
+        return res.status(404).json({ error: "Todo not found or not yours." });
+      }
+    }
+
+    // Update the todo using $set
+    const updatedTodo = await Todo.findByIdAndUpdate(
+      todoId,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedTodo) {
+      return res.status(404).json({ error: "Todo not found." });
+    }
+
+    res.status(200).json(updatedTodo);
+  } catch (error) {
+    console.error("Error updating todo:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
 app.get("/users/:userId/todos", async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -201,17 +250,10 @@ app.patch("/todos/:todoId/complete", async (req, res) => {
   }
 });
 
-// Example user-specific endpoint (calendar)
+//(calendar)
 app.get("/users/:userId/todos/completed/:date", async (req, res) => {
   try {
     const { userId, date } = req.params;
-
-    // If your Todo schema references the user, e.g.:
-    // todoSchema = new mongoose.Schema({
-    //   ...
-    //   user: { type: mongoose.Schema.Types.ObjectId, ref: "User" }
-    // })
-    // Then you can filter by user:
     const completedTodos = await Todo.find({
       user: userId, // Only fetch this user's todos
       status: "completed",
@@ -228,7 +270,7 @@ app.get("/users/:userId/todos/completed/:date", async (req, res) => {
   }
 });
 
-
+//*
 app.get("/todos/completed/:date", async (req, res) => {
   try {
     const date = req.params.date;
@@ -399,6 +441,7 @@ app.get("/habits/:habitId", async (req, res) => {
     res.status(500).json({ error: "Internal server error." });
   }
 });
+
 
 // PUT update habit
 app.put("/habits/:habitId", async (req, res) => {

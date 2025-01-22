@@ -80,6 +80,7 @@ const create = () => {
       const todoData = {
         title: title.trim(),
         category,
+        notes,
         dueDate: reminderEnabled ? reminderDate.toISOString() : null,
         userId,
       };
@@ -90,6 +91,7 @@ const create = () => {
         // Reset
         setTitle("");
         setCategory("");
+        setNotes("");
         setReminderEnabled(false);
         setReminderDate(new Date()); // Reset reminder date
         Alert.alert("Success", "Todo added successfully!");

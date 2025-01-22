@@ -105,7 +105,7 @@ import {
               style={styles.emptyImage}
               source={require("../../../../assets/emoji.png")}
             />
-            <Text style={styles.sectionHeader}>Title: {title}</Text>
+            <Text style={styles.sectionHeader}>{title}</Text>
           </View>
   
           {/* Display Repeat Mode */}
