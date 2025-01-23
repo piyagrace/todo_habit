@@ -1,4 +1,4 @@
-# Welcome to your Expo app 👋
+# Welcome to your To-Do Habit app 👋
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
@@ -10,10 +10,17 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
-2. Change
+2. On the App folders, ctrl f to search 'localhost' and change it with your ip address 
+   ex. 'http://localhost:3001/users/${uid}/todos' > 'http://192.100.3.90:3001/users/${uid}/todos'
 
    ```bash
     npx expo start
+   ```
+
+   Check your ip address by opening cmd
+
+   ```bash
+    ipconfig
    ```
 
 3. Run the Server
@@ -24,6 +31,20 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
    ```bash
     npm start
+   ```
+
+2. To run the app, make sure you have currently running android device in your device.
+
+   ```bash
+    cd app
+   ```
+
+   ```bash
+    npm run
+   ```
+
+   ```bash
+    a
    ```
 
 In the output, you'll find options to open the app in a
