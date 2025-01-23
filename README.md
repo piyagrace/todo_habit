@@ -1,4 +1,4 @@
-# Welcome to your To-Do Habit app 👋
+# Welcome to To-Do Habit app 👋
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
@@ -10,7 +10,8 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
-2. On the App folders, ctrl f to search 'localhost' and change it with your ip address 
+2. On the /App folder, ctrl f to search 'localhost' in each .js file and change it with your ip address 
+
    ex. 'http://localhost:3001/users/${uid}/todos' > 'http://192.100.3.90:3001/users/${uid}/todos'
 
    ```bash
