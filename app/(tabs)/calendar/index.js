@@ -42,7 +42,7 @@ const Index = () => {
   const fetchCompletedTodos = async (uid, date) => {
     try {
       const response = await axios.get(
-        `http://192.168.1.50:3001/users/${uid}/todos/completed/${date}`
+        `http://localhost:3001/users/${uid}/todos/completed/${date}`
       );
       const completedTodos = response.data.completedTodos || [];
       setTodos(completedTodos);
@@ -72,7 +72,7 @@ const Index = () => {
           calendarBackground: "white",
           selectedDayBackgroundColor: "#db2859",
           selectedDayTextColor: "#ffffff",
-          todayTextColor: "#db2859",
+          todayTextColor: "black",
           arrowColor: "#db2859",
           monthTextColor: "black",
           textSectionTitleColor: "#b6c1cd",

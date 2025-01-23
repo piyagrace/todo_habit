@@ -123,7 +123,7 @@ const create = () => {
             };
 
             const response = await axios.post(
-                "http://192.168.1.50:3001/habits",
+                "http://localhost:3001/habits",
                 habitDetails
             );
 
