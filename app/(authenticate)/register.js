@@ -1,184 +1,189 @@
 import {
-    StyleSheet,
-    Text,
-    View,
-    SafeAreaView,
-    KeyboardAvoidingView,
-    TextInput,
-    Pressable,
-    Alert,
-  } from "react-native";
-  import React, { useState } from "react";
-  import { MaterialIcons } from "@expo/vector-icons";
-  import { AntDesign ,Ionicons} from "@expo/vector-icons";
-  import { useRouter, } from "expo-router";
+  StyleSheet,
+  Text,
+  View,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  TextInput,
+  Pressable,
+  Alert,
+} from "react-native";
+import React, { useState } from "react";
+import { MaterialIcons } from "@expo/vector-icons";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import axios from "axios";
-  
-  const register = () => {
-    const [name,setName] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const router = useRouter();
-    const handleRegister = () => {
-        const user = { 
-            name:name,
-            email:email,
-            password:password
-        }
 
-        axios.post("http://localhost:3001/register",user).then((response) => {
-            console.log(response);
-            Alert.alert("Registration successfull","You have been registered succesfully");
-            setEmail("");
-            setPassword("");
-            setName("");
-            router.replace("/(authenticate)/login");
-        }).catch((error) => {
-            Alert.alert("Registration failed","an error ocurred during registration");
-            console.log("error",error)
-        })
-    }
-    return (
-      <SafeAreaView
-        style={{ flex: 1, backgroundColor: "white", alignItems: "center" }}
-      >
-        <View style={{ marginTop: 80 }}>
-          <Text style={{ fontSize: 18, fontWeight: "600", color: "#0066b2" }}>
-            TODO-LIST TRACKER
-          </Text>
-        </View>
-        <KeyboardAvoidingView>
-          <View style={{ alignItems: "center" }}>
-            <Text style={{ fontSize: 16, fontWeight: "600", marginTop: 20 }}>
-              register  to your account
-            </Text>
-          </View>
-  
-          <View style={{ marginTop: 70 }}>
+const register = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const router = useRouter();
 
-          <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 5,
-                backgroundColor: "#E0E0E0",
-                paddingVertical: 5,
-                borderRadius: 5,
-                marginTop: 30,
-              }}
-            >
-              <Ionicons style={{marginLeft:8}} name="person" size={24} color="gray" />
+  const handleRegister = () => {
+    const user = {
+      name: name,
+      email: email,
+      password: password,
+    };
+
+    axios
+      .post("http://192.168.1.50:3001/register", user)
+      .then((response) => {
+        console.log(response);
+        Alert.alert("Registration successful", "You have been registered successfully");
+        setEmail("");
+        setPassword("");
+        setName("");
+        router.replace("/(authenticate)/login");
+      })
+      .catch((error) => {
+        Alert.alert("Registration failed", "An error occurred during registration");
+        console.log("error", error);
+      });
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>TODO-HABIT TRACKER</Text>
+      </View>
+      <KeyboardAvoidingView behavior="padding">
+        <View style={styles.formContainer}>
+          <Text style={styles.subtitle}>Register your account</Text>
+
+          {/* White Container for Name, Email, Password Inputs, and Register Button */}
+          <View style={styles.whiteContainer}>
+            {/* Name Input */}
+            <View style={styles.inputContainer}>
+              <Ionicons name="person-outline" size={24} color="gray" style={styles.icon} />
               <TextInput
                 value={name}
                 onChangeText={(text) => setName(text)}
-                style={{
-                  color: "gray",
-                  marginVertical: 10,
-                  width: 300,
-                  fontSize: email ? 17 : 17,
-                }}
-                placeholder="enter your name"
+                style={styles.input}
+                placeholder="Username"
               />
             </View>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 5,
-                backgroundColor: "#E0E0E0",
-                paddingVertical: 5,
-                borderRadius: 5,
-                marginTop: 30,
-              }}
-            >
-              <MaterialIcons
-                style={{ marginLeft: 8 }}
-                name="email"
-                size={24}
-                color="gray"
-              />
+
+            {/* Email Input */}
+            <View style={styles.inputContainer}>
+              <Ionicons name="mail-outline" size={24} color="gray" style={styles.icon} />
               <TextInput
                 value={email}
                 onChangeText={(text) => setEmail(text)}
-                style={{
-                  color: "gray",
-                  marginVertical: 10,
-                  width: 300,
-                  fontSize: email ? 17 : 17,
-                }}
-                placeholder="enter your email"
+                style={styles.input}
+                placeholder="Email"
+                keyboardType="email-address"
+                autoCapitalize="none"
               />
             </View>
-  
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 5,
-                backgroundColor: "#E0E0E0",
-                paddingVertical: 5,
-                borderRadius: 5,
-                marginTop: 30,
-              }}
-            >
-              <AntDesign
-                style={{ marginLeft: 8 }}
-                name="lock1"
-                size={24}
-                color="gray"
-              />
+
+            {/* Password Input */}
+            <View style={styles.inputContainer}>
+              <Ionicons name="lock-closed-outline" size={24} color="gray" style={styles.icon} />
               <TextInput
                 value={password}
                 secureTextEntry={true}
                 onChangeText={(text) => setPassword(text)}
-                style={{
-                  color: "gray",
-                  marginVertical: 10,
-                  width: 300,
-                  fontSize: email ? 17 : 17,
-                }}
-                placeholder="enter your password"
+                style={styles.input}
+                placeholder="Password"
               />
             </View>
-  
-  
-            <View style={{ marginTop: 60 }} />
-  
-            <Pressable
-            onPress={handleRegister}
-              style={{
-                width: 200,
-                backgroundColor: "#6699CC",
-                padding: 15,
-                borderRadius: 6,
-                marginLeft: "auto",
-                marginRight: "auto",
-              }}
-            >
-              <Text
-                style={{
-                  textAlign: "center",
-                  color: "white",
-                  fontWeight: "bold",
-                  fontSize: 16,
-                }}
-              >
-                Register
-              </Text>
-            </Pressable>
-  
-            <Pressable onPress={() => router.replace("/login")} style={{ marginTop: 15 }}>
-              <Text style={{ textAlign: "center", fontSize: 15, color: "gray" }}>
-               Already have an account? sign Up
-              </Text>
+
+            {/* Register Button */}
+            <Pressable onPress={handleRegister} style={styles.registerButton}>
+              <Text style={styles.registerButtonText}>Register</Text>
             </Pressable>
           </View>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    );
-  };
-  
-  export default register;
-  
-  const styles = StyleSheet.create({});
-  
+
+          {/* Navigate to Login */}
+          <Pressable onPress={() => router.replace("/login")} style={styles.registerLink}>
+            <Text style={styles.registerText}>Already have an account? Log In </Text>
+          </Pressable>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+};
+
+export default register;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+    backgroundColor: "#eb84a0",
+  },
+  header: {
+    marginTop: 80,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "white",
+  },
+  formContainer: {
+    alignItems: "center",
+    marginTop: 20,
+  },
+  subtitle: {
+    fontSize: 26,
+    fontWeight: "700",
+    marginTop: 70,
+    color: "white",
+  },
+  whiteContainer: {
+    backgroundColor: "white",
+    padding: 25,
+    borderRadius: 23,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+    width: 320,
+    marginTop: 20,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 13,
+    backgroundColor: "#f3e4ea",
+    paddingVertical: 2,
+    borderRadius: 20,
+    marginTop: 20,
+  },
+  icon: {
+    marginLeft: 19,
+  },
+  input: {
+    color: "black",
+    marginVertical: 10,
+    width: 250,
+    fontSize: 15,
+  },
+  registerButton: {
+    width: 130,
+    backgroundColor: "#e66388",
+    padding: 14,
+    borderRadius: 24,
+    marginLeft: "auto",
+    marginRight: "auto",
+    marginTop: 30,
+    marginBottom: 10,
+  },
+  registerButtonText: {
+    textAlign: "center",
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  registerLink: {
+    marginTop: 160,
+  },
+  registerText: {
+    textAlign: "center",
+    fontSize: 15,
+    color: "white",
+  },
+});

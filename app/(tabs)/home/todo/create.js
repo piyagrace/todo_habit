@@ -85,7 +85,7 @@ const create = () => {
         userId,
       };
 
-      const response = await axios.post(`http://localhost:3001/todos/${userId}`, todoData);
+      const response = await axios.post(`http://192.168.1.50:3001/todos/${userId}`, todoData);
 
       if (response.status === 200) {
         // Reset

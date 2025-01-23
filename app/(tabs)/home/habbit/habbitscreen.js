@@ -66,7 +66,7 @@ const Habbitscreen = () => {
   const fetchHabits = async (userIdParam) => {
     try {
       setIsLoading(true);
-      const response = await axios.get('http://localhost:3001/habitslist', {
+      const response = await axios.get('http://192.168.1.50:3001/habitslist', {
         params: { userId: userIdParam },
       });
       setHabits(response.data);
@@ -109,7 +109,7 @@ const Habbitscreen = () => {
         userId,
       };
       const response = await axios.put(
-        `http://localhost:3001/habits/${habitId}`,
+        `http://192.168.1.50:3001/habits/${habitId}`,
         updatedHabitData
       );
       if (response.status === 200) {
@@ -170,7 +170,7 @@ const Habbitscreen = () => {
               setIsDeleting(true);
               const habitId = selectedHabit._id;
               const response = await axios.delete(
-                `http://localhost:3001/habits/${habitId}`,
+                `http://192.168.1.50:3001/habits/${habitId}`,
                 { data: { userId } }
               );
               if (response.status === 200) {
@@ -206,7 +206,7 @@ const Habbitscreen = () => {
         userId,
       };
       const response = await axios.put(
-        `http://localhost:3001/habits/${habitId}`,
+        `http://192.168.1.50:3001/habits/${habitId}`,
         updatedHabitData
       );
       if (response.status === 200) {
@@ -398,13 +398,6 @@ const Habbitscreen = () => {
             </Text>
           </Pressable>
         ))}
-        <AntDesign
-          onPress={() => router.push('/home/habbit/create')}
-          name="plus"
-          size={24}
-          color="black"
-          style={styles.addIcon}
-        />
       </View>
 
       {/* ONLY show the ProgressBar if user is on 'Today' */}
