@@ -4,23 +4,23 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 ## Get started
 
-1. Open Directory and Install Dependencies
+1. Open Directory and Install Dependencies.
 
    ```bash
    npm install
    ```
 
-2. On the /App folder, ctrl f to search 'localhost' in each .js file and change it with your ip address 
+2. On the /App folder, ctrl f to search 'localhost' in each .js file and change it with your ip address. 
 
    ex. 'http://localhost:3001/users/${uid}/todos' > 'http://192.100.3.90:3001/users/${uid}/todos'
 
-   Check your ip address by opening cmd and look for IPV4 Address
+   * Check your ip address by opening cmd and look for IPV4 Address.
 
    ```bash
     ipconfig
    ```
 
-3. Run the Server
+3. Run the Server.
 
    ```bash
     cd api
