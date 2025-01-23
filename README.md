@@ -14,11 +14,7 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
    ex. 'http://localhost:3001/users/${uid}/todos' > 'http://192.100.3.90:3001/users/${uid}/todos'
 
-   ```bash
-    npx expo start
-   ```
-
-   Check your ip address by opening cmd
+   Check your ip address by opening cmd and look for IPV4 Address
 
    ```bash
     ipconfig
