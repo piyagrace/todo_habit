@@ -72,7 +72,7 @@ const Index = () => {
           calendarBackground: "white",
           selectedDayBackgroundColor: "#db2859",
           selectedDayTextColor: "#ffffff",
-          todayTextColor: "black",
+          todayTextColor: "#db2859",
           arrowColor: "#db2859",
           monthTextColor: "black",
           textSectionTitleColor: "#b6c1cd",

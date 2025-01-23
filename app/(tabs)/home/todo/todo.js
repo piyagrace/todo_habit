@@ -33,6 +33,7 @@ const Todo = () => {
   const [userId, setUserId] = useState(null);
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedTodo, setSelectedTodo] = useState(null);
+  const [marked, setMarked] = useState(false);
 
   useEffect(() => {
     const initialize = async () => {
@@ -167,8 +168,11 @@ const Todo = () => {
               );
               if (response.status === 200) {
                 Alert.alert("Success", "Todo deleted successfully!");
+                // After deletion, fetch the updated todos
                 await getUserTodos(userId);
                 closeModal();
+                // Optionally navigate to the same screen to ensure it's refreshed
+                // router.push(router.asPath); // Unnecessary unless you want to force a full page reload
               }
             } catch (error) {
               Alert.alert("Error", "Failed to delete todo.");
@@ -177,7 +181,31 @@ const Todo = () => {
         },
       ]
     );
+  };  
+
+  const markTodoAsCompleted = async (todoId) => {
+    try {
+      setMarked(true); // Set marked state to true (optional, for any loading state or effect)
+      
+      // Make the API call to mark the todo as completed
+      const response = await axios.patch(
+        `http://192.168.1.50:3001/todos/${todoId}/complete`
+      );
+      
+      console.log(response.data);
+      
+      // Fetch the updated todos after marking the task as completed
+      if (response.status === 200) {
+        // Re-fetch the todos from the server
+        await getUserTodos(userId);
+        Alert.alert("Success", "Todo marked as completed!");
+      }
+    } catch (error) {
+      console.log("error", error);
+      Alert.alert("Error", "Failed to mark todo as completed.");
+    }
   };
+  
 
   return (
     <>
@@ -221,7 +249,12 @@ const Todo = () => {
                   onPress={() => handlePress(item._id)}
                 >
                   <View style={styles.todoRow}>
-                    <Entypo name="circle" size={18} color="#db2859" />
+                    <Entypo
+                      onPress={() => markTodoAsCompleted(item._id)} // Use item._id to mark the specific todo as completed
+                      name="circle"
+                      size={18}
+                      color={item.status === 'completed' ? "rgba(219, 40, 89, 0.6)" : "#db2859"} // Adjust the color if completed
+                    />
                     <Text style={styles.todoTitle}>{item.title}</Text>
                     <Feather name="flag" size={15} color="black" />
                   </View>
@@ -240,7 +273,11 @@ const Todo = () => {
           <View>
             <Text style={styles.sectionTitle}>Completed Tasks</Text>
             {completedTodos.map((item) => (
-              <Pressable key={item._id} style={styles.completedTodoBox}>
+              <Pressable
+                  key={item._id}
+                  style={styles.completedTodoBox}
+                  onPress={() => handlePress(item._id)}
+                >
                 <View style={styles.todoRow}>
                   <FontAwesome name="circle" size={18} color="rgba(219, 40, 89, 0.6)" />
                   <Text style={styles.completedTodoTitle}>{item.title}</Text>
