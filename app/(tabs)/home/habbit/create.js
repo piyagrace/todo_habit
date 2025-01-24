@@ -41,34 +41,6 @@ const create = () => {
     const [isMinuteModalVisible, setIsMinuteModalVisible] = useState(false);
     const [isAmPmModalVisible, setIsAmPmModalVisible] = useState(false);
 
-    // Hours, minutes, AM/PM
-    const hours = Array.from({ length: 12 }, (_, i) => (i + 1).toString());
-    const minutes = Array.from({ length: 60 }, (_, i) =>
-        i < 10 ? `0${i}` : `${i}`
-    );
-    const amPmOptions = ["AM", "PM"];
-
-    const colors = [
-        "rgba(245, 112, 112, 255)", // Red
-        "rgba(245, 224, 105, 255)", // Gold
-        "rgba(93, 118, 169, 255)",
-        "rgba(96, 159, 242, 255)",
-        "rgba(106, 236, 106, 255)",
-        "#ccccff",
-        "rgba(237, 171, 113, 255)",
-    ];
-
-    const days = ["Su", "M", "T", "W", "Th", "F", "Sa"];
-
-    // Toggle day in weekly repeat
-    const toggleDay = (day) => {
-        if (selectedDays.includes(day)) {
-            setSelectedDays(selectedDays.filter((d) => d !== day));
-        } else {
-            setSelectedDays([...selectedDays, day]);
-        }
-    };
-
     // Add habit
     const addHabit = async () => {
         try {
@@ -122,6 +94,7 @@ const create = () => {
                 userId,
             };
 
+            //sent to api for posting
             const response = await axios.post(
                 "http://10.0.2.2:3001/habits",
                 habitDetails
@@ -156,7 +129,47 @@ const create = () => {
         }
     };
 
-    // For hour/minute/AM-PM items in the modal
+    //habbit colors
+    const colors = [
+        "rgba(245, 112, 112, 255)", 
+        "rgba(245, 224, 105, 255)", 
+        "rgba(93, 118, 169, 255)",
+        "rgba(96, 159, 242, 255)",
+        "rgba(106, 236, 106, 255)",
+        "#ccccff",
+        "rgba(237, 171, 113, 255)",
+    ];
+
+    const days = ["Su", "M", "T", "W", "Th", "F", "Sa"];
+
+    // Toggle day for weekly repeat
+    const toggleDay = (day) => {
+        if (selectedDays.includes(day)) {
+            setSelectedDays(selectedDays.filter((d) => d !== day));
+        } else {
+            setSelectedDays([...selectedDays, day]);
+        }
+    };
+
+    // Toggling the "Repeat" switch
+    const handleRepeatToggle = (val) => {
+        setRepeatEnabled(val);
+        if (val === true) {
+            setRepeatMode("daily");
+        } else {
+            setRepeatMode("none");
+            setSelectedDays([]);
+        }
+    };
+
+    // Hours, minutes, AM/PM
+    const hours = Array.from({ length: 12 }, (_, i) => (i + 1).toString());
+    const minutes = Array.from({ length: 60 }, (_, i) =>
+        i < 10 ? `0${i}` : `${i}`
+    );
+    const amPmOptions = ["AM", "PM"];
+
+    // For hour/minute/AM-PM time in the modal
     const renderItem = (item, type) => (
         <TouchableOpacity
             style={styles.modalItem}
@@ -182,7 +195,7 @@ const create = () => {
     const minuteListRef = useRef(null);
     const amPmListRef = useRef(null);
 
-    // Auto-scroll to selected item
+    // Auto-scroll to selected item for time modal
     useEffect(() => {
         if (isHourModalVisible && hourListRef.current) {
             const hourIndex = hours.indexOf(hour);
@@ -209,17 +222,6 @@ const create = () => {
             }
         }
     }, [isAmPmModalVisible]);
-
-    // Toggling the "Repeat" switch
-    const handleRepeatToggle = (val) => {
-        setRepeatEnabled(val);
-        if (val === true) {
-            setRepeatMode("daily");
-        } else {
-            setRepeatMode("none");
-            setSelectedDays([]);
-        }
-    };
 
     return (
         <KeyboardAvoidingView
@@ -545,8 +547,6 @@ const styles = StyleSheet.create({
         flexShrink: 1,
         color: "black",
     },
-
-    // Updated "titleInput" style for a single underline + center alignment
     titleInput: {
         borderBottomWidth: 2,
         borderColor: "rgba(0, 0, 0, 0.4)",
@@ -684,7 +684,6 @@ const styles = StyleSheet.create({
         marginHorizontal: 5,
         color: "#000",
     },
-    // Save button
     saveButton: {
         marginTop: 10,
         backgroundColor: "#db2859",
@@ -692,13 +691,11 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         alignItems: "center",
         marginHorizontal: 18,
-        // Remove justifyContent here so we can control it in saveButtonRow
     },
     saveButtonRow: {
-        // Ensures icon & text are side by side
         flexDirection: "row",
-        justifyContent: "center",  // center horizontally
-        alignItems: "center",      // center vertically
+        justifyContent: "center",  
+        alignItems: "center",     
     },
     saveButtonText: {
         color: "#fff",
@@ -706,10 +703,8 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     addIcon: {
-        marginRight: 8, // a small gap before the text
+        marginRight: 8, 
     },
-
-    // Modals
     modalBackground: {
         flex: 1,
         backgroundColor: "rgba(0,0,0,0.3)",

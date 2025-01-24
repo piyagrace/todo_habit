@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
+// for To-Do/Habit Toggle Switch
 const Toggle = ({ onTabChange }) => {
     const [activeTab, setActiveTab] = useState('todo'); // Assuming 'todo' is the default
 
@@ -29,18 +30,17 @@ const Toggle = ({ onTabChange }) => {
 
 export default Toggle;
 
-// StyleSheet
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         backgroundColor: 'white',
         borderRadius: 25,
-        padding: 2, // Reduced overall padding for a slimmer look
-        width: 'auto', // Set a specific width to make the tabs wider
+        padding: 2, 
+        width: 'auto',
         alignSelf: 'center',
         marginBottom: 7,
         marginTop: 17,
-        shadowColor: '#000', // Optional: Add shadow for a subtle depth effect
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 3.84,
@@ -49,12 +49,12 @@ const styles = StyleSheet.create({
     tab: {
         flexgrow: 1,
         borderRadius: 30,
-        paddingVertical: 5, // Reduced height of the tabs
-        paddingHorizontal: 25, // Adjust horizontal padding as needed
+        paddingVertical: 5,
+        paddingHorizontal: 25, 
         justifyContent: 'center',
         alignItems: 'center',
         marginHorizontal: 2,
-        marginVertical: 1 // Ensure there's a slight space between the tabs
+        marginVertical: 1 
     },
     activeTab: {
         backgroundColor: '#db2859',

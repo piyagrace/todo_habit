@@ -116,7 +116,7 @@ export default WeekCalendar;
 
 const styles = StyleSheet.create({
     container: {
-        height: 80, // Adjusted for larger day containers
+        height: 80, 
         backgroundColor: "#f1ebed",
         marginBottom: 7,
         marginTop: 4,
@@ -130,25 +130,25 @@ const styles = StyleSheet.create({
 
     },
     dayContainer: {
-        width: 40, // Increased width
-        height: 55, // Increased height
+        width: 40, 
+        height: 55, 
         backgroundColor: '#FFFFFF',
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: 40, // Fully rounded sides
+        borderRadius: 40, 
         borderWidth: 1,
-        borderColor: '#ddd', // Light grey border
-        elevation: 2, // Subtle shadow for depth
+        borderColor: '#ddd', 
+        elevation: 2, 
     },
     selectedDayContainer: {
         backgroundColor: '#007FFF',
     },
     todayDayContainer: {
         borderWidth: 2,
-        borderColor: '#db2859', // Highlight today with a blue border
+        borderColor: '#db2859', 
     },
     dayText: {
-        fontSize: 13, // Larger font size for better visibility
+        fontSize: 13, 
         color: '#555',
     },
     selectedDayText: {
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     dateText: {
-        fontSize: 13, // Larger date text
+        fontSize: 13,
         color: '#555',
     },
     selectedDateText: {

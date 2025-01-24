@@ -60,7 +60,7 @@ const ProgressBar = ({ step = 0, steps = 1, height = 10 }) => {
 const styles = StyleSheet.create({
   labelContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',  // pushes text to opposite sides
+    justifyContent: 'space-between', 
     alignItems: 'center',
     marginHorizontal: 10,
     marginBottom: 8,

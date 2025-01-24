@@ -27,10 +27,12 @@ mongoose
     console.log("Error connectin to mongoDb", error);
   });
 
+  
 app.listen(port, () => {
   console.log("Server is running on port 3001");
 });
 
+//---------------------------USER---------------------------------
 app.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -56,6 +58,7 @@ app.post("/register", async (req, res) => {
   }
 });
 
+//authentication
 const generateSecretKey = () => {
   const secretKey = crypto.randomBytes(32).toString("hex");
 
@@ -103,6 +106,7 @@ app.get("/users/:userId", async (req, res) => {
   }
 });
 
+//---------------------------TODOS---------------------------------
 app.post("/todos/:userId", async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -184,7 +188,6 @@ app.put("/todos/:todoId", async (req, res) => {
     const { todoId } = req.params;
     const updateData = req.body;
 
-    // Optional: Validate user ownership (assuming `userId` is passed in the request body)
     const { userId } = updateData;
     if (userId) {
       const todo = await Todo.findOne({ _id: todoId, user: userId });
@@ -270,7 +273,7 @@ app.get("/users/:userId/todos/completed/:date", async (req, res) => {
   }
 });
 
-//*
+//calendar data
 app.get("/todos/completed/:date", async (req, res) => {
   try {
     const date = req.params.date;
@@ -310,7 +313,7 @@ app.get("/users/:userId/todos/count", async (req, res) => {
   }
 });
 
-// Helper function
+// Helper function for weekly stats
 async function getDailyStatsForPastWeek(userId) {
   const dailyStats = [];
 
@@ -369,7 +372,8 @@ app.get("/users/:userId/todos/weekly-stats", async (req, res) => {
   }
 });
 
-//habits
+
+//---------------------------Habits---------------------------------
 
 app.post("/habits", async (req, res) => {
   try {

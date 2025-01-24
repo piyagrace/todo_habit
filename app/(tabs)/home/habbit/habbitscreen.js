@@ -21,8 +21,6 @@ import axios from 'axios';
 import { useIsFocused } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import WeekCalendar from '../weekcalendar';
-
-// --- IMPORT THE PROGRESS BAR COMPONENT ---
 import ProgressBar from './progressbar';
 
 const Habbitscreen = () => {
@@ -40,6 +38,7 @@ const Habbitscreen = () => {
     .slice(0, 3);
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
+  //login auth
   useEffect(() => {
     const initialize = async () => {
       try {
@@ -57,6 +56,7 @@ const Habbitscreen = () => {
     initialize();
   }, []);
 
+  //fetch data
   useEffect(() => {
     if (isFocused && userId) {
       fetchHabits(userId);
@@ -77,7 +77,7 @@ const Habbitscreen = () => {
     }
   };
 
-  // Open the modal by setting the selected habit
+  // Open the modal by setting a habit
   const handlePress = (habitId) => {
     const habit = habits.find((h) => h._id === habitId);
     if (!habit) {
@@ -137,6 +137,7 @@ const Habbitscreen = () => {
     }, 200);
   };
 
+  //view habit function
   const handleView = () => {
     if (!selectedHabit || !selectedHabit._id) {
       Alert.alert('Error', 'No habit selected.');
@@ -226,7 +227,8 @@ const Habbitscreen = () => {
     return [];
   };
 
-  // Filter logic (for "Today" we exclude anything that is completed or skipped)
+  // Filter logic (for "Today" we exclude anything that is completed or skipped for displaying)
+  //and Checking Habit Status for the Current Day
   const filteredHabits = habits.filter((habit) => {
     if (option === 'Today') {
       const isCompletedToday = habit.completed?.[currentDay] === true;
@@ -236,15 +238,7 @@ const Habbitscreen = () => {
     return true;
   });
 
-  // Calculate Daily Progress
-  const totalHabitsForToday = habits.length;
-  const doneHabitsForToday = habits.reduce((count, habit) => {
-    const isCompleted = habit.completed?.[currentDay] === true;
-    const isSkipped = habit.skipped?.[currentDay] === true;
-    return isCompleted || isSkipped ? count + 1 : count;
-  }, 0);
-
-  // Render items
+  // Render today, weekly, overall category
   const renderTodayItem = ({ item }) => (
     <Pressable
       onPress={() => handlePress(item._id)}
@@ -376,6 +370,14 @@ const Habbitscreen = () => {
     );
   };
 
+  // Calculate Daily Progress
+  const totalHabitsForToday = habits.length;
+  const doneHabitsForToday = habits.reduce((count, habit) => {
+    const isCompleted = habit.completed?.[currentDay] === true;
+    const isSkipped = habit.skipped?.[currentDay] === true;
+    return isCompleted || isSkipped ? count + 1 : count;
+  }, 0);
+
   const renderListHeader = () => (
     <View style={styles.listHeaderContainer}>
       <View style={styles.optionContainer}>
@@ -400,7 +402,7 @@ const Habbitscreen = () => {
         ))}
       </View>
 
-      {/* ONLY show the ProgressBar if user is on 'Today' */}
+      {/*show the ProgressBar if user is on 'Today' */}
       {option === 'Today' && (
         <ProgressBar
           step={doneHabitsForToday}
@@ -652,8 +654,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontStyle: 'italic',
   },
-
-  // MODAL
   modalBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.4)',
@@ -691,18 +691,18 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
 
-  // NEW/UPDATED STYLES FOR TWO-COLUMN LAYOUT
+ 
   modalOptionsContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap',           // Allow wrapping to the next line
+    flexWrap: 'wrap',           
     justifyContent: 'space-between',
     marginLeft: 15
   },
   twoColumnOption: {
-    width: '40%',               // Adjust as needed (48% or 49%)
+    width: '40%',               
   },
   deleteRow: {
-    alignSelf: 'center',        // Center horizontally
+    alignSelf: 'center',       
     marginTop: 20,
   },
 });

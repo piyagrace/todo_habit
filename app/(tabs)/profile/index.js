@@ -188,7 +188,7 @@ const ProfileScreen = () => {
           </View>
         </View>
       ) : (
-        // OPTIONAL: Show a fallback if no data
+        // Show a fallback if no data
         <View style={{ marginHorizontal: 15, marginBottom: 10 }}>
           <Text style={{ textAlign: "center", color: "red", marginBottom: 5 }}>
             No weekly stats available to display.
@@ -331,7 +331,6 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
   },
-  // ======== Legend styles ========
   legendContainer: {
     flexDirection: "row",
     justifyContent: "center",

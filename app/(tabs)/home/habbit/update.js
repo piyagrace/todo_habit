@@ -204,7 +204,7 @@ const Update = () => {
         </TouchableOpacity>
     );
 
-    // Scroll to the selected item when modal opens
+    // Scroll to the selected item when modal opens for the time
     useEffect(() => {
         if (isHourModalVisible && hourListRef.current) {
             const hourIndex = hours.indexOf(hour);
@@ -254,7 +254,6 @@ const Update = () => {
             >
                 {/* Header */}
                 <View style={styles.headerContainer}>
-                    {/* CLICKING THIS WILL CANCEL EDIT AND GO HOME */}
                     <Ionicons
                         name="arrow-back"
                         onPress={cancelEdit}
@@ -530,9 +529,7 @@ const Update = () => {
 
 export default Update;
 
-// You can keep your merged styles from previous step:
 const styles = StyleSheet.create({
-    // ... same styles from your "create" design ...
     container: {
         flex: 1,
         backgroundColor: "#f1ebed",

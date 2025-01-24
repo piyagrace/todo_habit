@@ -18,7 +18,7 @@ const index = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f1ebed', // Set the background color here
+        backgroundColor: '#f1ebed',
     }
 });
 

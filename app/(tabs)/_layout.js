@@ -41,7 +41,7 @@ export default function Layout() {
           })}
         />
 
-        {/* --- The "Add" Tab with a custom Button that toggles modal --- */}
+        {/* --- The "Add" Tab with a custom Button that toggles modal for Add Habit/ Add Task--- */}
         <Tabs.Screen
           name="add"
           options={({ navigation }) => ({

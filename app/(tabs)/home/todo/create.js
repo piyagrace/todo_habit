@@ -25,14 +25,11 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 const create = () => {
   const router = useRouter();
 
-  const [selectedColor, setSelectedColor] = useState("");
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
   const [category, setCategory] = useState(""); // Start blank or default to "Work"
 
   // REPEAT states
-  const [repeatEnabled, setRepeatEnabled] = useState(false);
-  const [repeatMode, setRepeatMode] = useState("none");
   const [selectedDays, setSelectedDays] = useState([]);
 
   // REMINDER states
@@ -41,24 +38,14 @@ const create = () => {
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false); // State to toggle date picker visibility
 
   const colors = [
-    "rgba(245, 112, 112, 255)", // Red
-    "rgba(245, 224, 105, 255)", // Gold
+    "rgba(245, 112, 112, 255)", 
+    "rgba(245, 224, 105, 255)", 
     "rgba(93, 118, 169, 255)",
     "rgba(96, 159, 242, 255)",
     "rgba(106, 236, 106, 255)",
     "#ccccff",
     "rgba(237, 171, 113, 255)",
   ];
-
-  const days = ["Su", "M", "T", "W", "Th", "F", "Sa"];
-
-  const toggleDay = (day) => {
-    if (selectedDays.includes(day)) {
-      setSelectedDays(selectedDays.filter((d) => d !== day));
-    } else {
-      setSelectedDays([...selectedDays, day]);
-    }
-  };
 
   const addTodo = async () => {
     try {
@@ -93,7 +80,7 @@ const create = () => {
         setCategory("");
         setNotes("");
         setReminderEnabled(false);
-        setReminderDate(new Date()); // Reset reminder date
+        setReminderDate(new Date()); 
         Alert.alert("Success", "Todo added successfully!");
         router.push("/home");
       }
@@ -114,7 +101,7 @@ const create = () => {
 
   // Handle date change for date picker
   const handleDateChange = (event, selectedDate) => {
-    // Check if selectedDate is null, which could happen when the user cancels the date picker
+    // Check if selectedDate is null, user might cancels the date picker
     const currentDate = selectedDate || reminderDate;
     setReminderDate(currentDate);
 
@@ -305,9 +292,9 @@ const styles = StyleSheet.create({
     color: "#000",
   },
   dueDateContainer: {
-    flexDirection: "row", // Aligns text and switch in a row
-    justifyContent: "space-between", // Align items with space between them
-    alignItems: "center", // Vertically aligns the text and switch
+    flexDirection: "row", 
+    justifyContent: "space-between", 
+    alignItems: "center", 
   },
   pickerStyle: {
     color: "#000",

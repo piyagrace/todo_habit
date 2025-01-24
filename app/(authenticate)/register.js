@@ -237,13 +237,12 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: height * 0.07, // adjust as needed
+    marginTop: height * 0.07,
   },
-  // Scale the image responsively, maintaining its aspect ratio
   emptyImage: {
-    width: width * 0.8,       // 80% of screen width
-    height: undefined,        // allow aspectRatio to set height
-    aspectRatio: 4.375,       // 350 / 80 = 4.375 (match the actual image ratio)
-    resizeMode: "contain",    // show the entire image
+    width: width * 0.8,      
+    height: undefined,       
+    aspectRatio: 4.375,       
+    resizeMode: "contain",    
   },
 });
