@@ -9,18 +9,8 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    ```bash
    npm install
    ```
-
-2. On the /App folder, ctrl f to search 'localhost' in each .js file and change it with your ip address. 
-
-   ex. 'http://localhost:3001/users/${uid}/todos' > 'http://192.100.3.90:3001/users/${uid}/todos'
-
-   * Check your ip address by opening cmd and look for IPV4 Address.
-
-   ```bash
-    ipconfig
-   ```
-
-3. Run the Server.
+   
+2. Run the Server.
 
    ```bash
     cd api
@@ -30,7 +20,7 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
     npm start
    ```
 
-2. To run the app, make sure you have currently running android device in your device.
+3. To run the app, make sure you have currently running android device in your device.
 
    ```bash
     cd app
@@ -42,6 +32,18 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
    ```bash
     a
+   ```
+
+3. If Axios Error Appears.
+   
+   On the /App folder, ctrl f to search '10.0.2.2' in each .js file and change it with your ip address. 
+
+   ex. 'http://10.0.2.2:3001/users/${uid}/todos' > 'http://192.100.3.90:3001/users/${uid}/todos'
+
+   * Check your ip address by opening cmd and look for IPV4 Address.
+
+   ```bash
+    ipconfig
    ```
 
 In the output, you'll find options to open the app in a
