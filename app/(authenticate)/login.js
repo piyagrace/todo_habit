@@ -10,6 +10,7 @@ import {
   Pressable,
   Alert,
   Dimensions,
+  Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -66,8 +67,8 @@ const login = () => {
 
       if (token && userId) {
         await AsyncStorage.setItem("authToken", token);
-        await AsyncStorage.setItem("userId", userId); // Store userId
-        router.replace("/(tabs)/home"); // Redirect to Home after login
+        await AsyncStorage.setItem("userId", userId);
+        router.replace("/(tabs)/home");
       } else {
         Alert.alert("Login Failed", "Invalid response from server.");
       }
@@ -83,8 +84,12 @@ const login = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>TODO-HABIT TRACKER</Text>
+      {/* Responsive Image Container */}
+      <View style={styles.emptyContainer}>
+        <Image
+          style={styles.emptyImage}
+          source={require("../../assets/text1.png")}
+        />
       </View>
 
       <KeyboardAvoidingView behavior="padding">
@@ -97,7 +102,7 @@ const login = () => {
             <View style={styles.inputContainer}>
               <Ionicons
                 name="mail-outline"
-                size={width * 0.055} // scale icon size
+                size={width * 0.055}
                 color="#70515d"
                 style={styles.icon}
               />
@@ -115,7 +120,7 @@ const login = () => {
             <View style={styles.inputContainer}>
               <Ionicons
                 name="lock-closed-outline"
-                size={width * 0.055} // scale icon size
+                size={width * 0.055}
                 color="#70515d"
                 style={styles.icon}
               />
@@ -162,17 +167,23 @@ const styles = StyleSheet.create({
     backgroundColor: "#eb84a0",
     alignItems: "center",
   },
-  header: {
-    marginTop: height * 0.08,
+  // Center the image horizontally and vertically
+  emptyContainer: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: height * 0.07, // adjust as needed
   },
-  title: {
-    fontSize: width * 0.05,
-    fontWeight: "600",
-    color: "white",
+  // Scale the image responsively, maintaining its aspect ratio
+  emptyImage: {
+    width: width * 0.8,       // 80% of screen width
+    height: undefined,        // allow aspectRatio to set height
+    aspectRatio: 4.375,       // 350 / 80 = 4.375 (match the actual image ratio)
+    resizeMode: "contain",    // show the entire image
   },
   formContainer: {
     alignItems: "center",
-    marginTop: height * 0.03,
+    marginTop: height * 0.01,
   },
   subtitle: {
     fontSize: width * 0.07,

@@ -9,6 +9,7 @@ import {
   Pressable,
   Alert,
   Dimensions,
+  Image
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -69,8 +70,12 @@ const register = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>TODO-HABIT TRACKER</Text>
+      {/* Responsive Image Container */}
+      <View style={styles.emptyContainer}>
+        <Image
+          style={styles.emptyImage}
+          source={require("../../assets/text1.png")}
+        />
       </View>
       <KeyboardAvoidingView behavior="padding">
         <View style={styles.formContainer}>
@@ -168,7 +173,7 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     alignItems: "center",
-    marginTop: height * 0.03,
+    marginTop: height * 0.001,
   },
   subtitle: {
     fontSize: width * 0.06,
@@ -227,5 +232,18 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: width * 0.045,
     color: "white",
+  },
+  emptyContainer: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: height * 0.07, // adjust as needed
+  },
+  // Scale the image responsively, maintaining its aspect ratio
+  emptyImage: {
+    width: width * 0.8,       // 80% of screen width
+    height: undefined,        // allow aspectRatio to set height
+    aspectRatio: 4.375,       // 350 / 80 = 4.375 (match the actual image ratio)
+    resizeMode: "contain",    // show the entire image
   },
 });
