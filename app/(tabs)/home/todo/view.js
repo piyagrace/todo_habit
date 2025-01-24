@@ -27,7 +27,7 @@ import {
       const fetchTodoData = async () => {
         try {
           // Fetch the Todo data based on the todoId
-          const response = await axios.get(`http://192.168.1.50:3001/todos/${todoId}`);
+          const response = await axios.get(`http://10.0.2.2:3001/todos/${todoId}`);
           const todo = response.data;
   
           // Set the fetched data into state

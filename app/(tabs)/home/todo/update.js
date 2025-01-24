@@ -57,7 +57,7 @@ const Update = () => {
         const fetchTodoData = async () => {
             try {
                 // Fetch the Todo data based on the todoId
-                const response = await axios.get(`http://192.168.1.50:3001/todos/${todoId}`);
+                const response = await axios.get(`http://10.0.2.2:3001/todos/${todoId}`);
                 const todo = response.data;
 
                 // Set the fetched data into state
@@ -109,7 +109,7 @@ const Update = () => {
             };
 
             // Make PUT request to update Todo
-            const response = await axios.put(`http://192.168.1.50:3001/todos/${todoId}`, updatedTodoData);
+            const response = await axios.put(`http://10.0.2.2:3001/todos/${todoId}`, updatedTodoData);
 
             if (response.status === 200) {
                 Alert.alert("Success", "Todo updated successfully!");

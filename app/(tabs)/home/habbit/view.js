@@ -44,7 +44,7 @@ import {
     // GET habit data from server
     const fetchHabitData = async (id) => {
       try {
-        const response = await axios.get(`http://192.168.1.50:3001/habits/${id}`);
+        const response = await axios.get(`http://10.0.2.2:3001/habits/${id}`);
         const habit = response.data;
         console.log("Fetched habit:", habit);
   

@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,12 +8,17 @@ import {
   TextInput,
   Pressable,
   Alert,
+  Dimensions,
 } from "react-native";
-import React, { useState } from "react";
-import { MaterialIcons } from "@expo/vector-icons";
-import { AntDesign, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import axios from "axios";
+
+// Get the screen dimensions
+const { width, height } = Dimensions.get("window");
+
+// Basic email format regex
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const register = () => {
   const [name, setName] = useState("");
@@ -21,24 +27,42 @@ const register = () => {
   const router = useRouter();
 
   const handleRegister = () => {
+    // Check for empty fields
+    if (!name || !email || !password) {
+      Alert.alert("Validation Error", "All fields are required.");
+      return;
+    }
+
+    // Validate email format
+    if (!emailRegex.test(email)) {
+      Alert.alert("Invalid Email", "Please enter a valid email address.");
+      return;
+    }
+
     const user = {
-      name: name,
-      email: email,
+      name: name.trim(),
+      email: email.trim(),
       password: password,
     };
 
     axios
-      .post("http://192.168.1.50:3001/register", user)
+      .post("http://10.0.2.2:3001/register", user)
       .then((response) => {
         console.log(response);
-        Alert.alert("Registration successful", "You have been registered successfully");
+        Alert.alert(
+          "Registration successful",
+          "You have been registered successfully"
+        );
         setEmail("");
         setPassword("");
         setName("");
         router.replace("/(authenticate)/login");
       })
       .catch((error) => {
-        Alert.alert("Registration failed", "An error occurred during registration");
+        Alert.alert(
+          "Registration failed",
+          "An error occurred during registration"
+        );
         console.log("error", error);
       });
   };
@@ -52,11 +76,16 @@ const register = () => {
         <View style={styles.formContainer}>
           <Text style={styles.subtitle}>Register your account</Text>
 
-          {/* White Container for Name, Email, Password Inputs, and Register Button */}
+          {/* White Container for Name, Email, Password, and Register Button */}
           <View style={styles.whiteContainer}>
             {/* Name Input */}
             <View style={styles.inputContainer}>
-              <Ionicons name="person-outline" size={24} color="gray" style={styles.icon} />
+              <Ionicons
+                name="person-outline"
+                size={width * 0.06}
+                color="gray"
+                style={styles.icon}
+              />
               <TextInput
                 value={name}
                 onChangeText={(text) => setName(text)}
@@ -67,7 +96,12 @@ const register = () => {
 
             {/* Email Input */}
             <View style={styles.inputContainer}>
-              <Ionicons name="mail-outline" size={24} color="gray" style={styles.icon} />
+              <Ionicons
+                name="mail-outline"
+                size={width * 0.06}
+                color="gray"
+                style={styles.icon}
+              />
               <TextInput
                 value={email}
                 onChangeText={(text) => setEmail(text)}
@@ -80,7 +114,12 @@ const register = () => {
 
             {/* Password Input */}
             <View style={styles.inputContainer}>
-              <Ionicons name="lock-closed-outline" size={24} color="gray" style={styles.icon} />
+              <Ionicons
+                name="lock-closed-outline"
+                size={width * 0.06}
+                color="gray"
+                style={styles.icon}
+              />
               <TextInput
                 value={password}
                 secureTextEntry={true}
@@ -97,8 +136,13 @@ const register = () => {
           </View>
 
           {/* Navigate to Login */}
-          <Pressable onPress={() => router.replace("/login")} style={styles.registerLink}>
-            <Text style={styles.registerText}>Already have an account? Log In </Text>
+          <Pressable
+            onPress={() => router.replace("/login")}
+            style={styles.registerLink}
+          >
+            <Text style={styles.registerText}>
+              Already have an account? Log In
+            </Text>
           </Pressable>
         </View>
       </KeyboardAvoidingView>
@@ -111,79 +155,77 @@ export default register;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
     backgroundColor: "#eb84a0",
+    alignItems: "center",
   },
   header: {
-    marginTop: 80,
+    marginTop: height * 0.08,
   },
   title: {
-    fontSize: 18,
+    fontSize: width * 0.05,
     fontWeight: "600",
     color: "white",
   },
   formContainer: {
     alignItems: "center",
-    marginTop: 20,
+    marginTop: height * 0.03,
   },
   subtitle: {
-    fontSize: 26,
+    fontSize: width * 0.06,
     fontWeight: "700",
-    marginTop: 70,
+    marginTop: height * 0.07,
     color: "white",
   },
   whiteContainer: {
     backgroundColor: "white",
-    padding: 25,
-    borderRadius: 23,
+    padding: width * 0.06,
+    borderRadius: width * 0.04,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 5,
-    width: 320,
-    marginTop: 20,
+    width: width * 0.9, // 90% of screen width
+    marginTop: height * 0.03,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 13,
     backgroundColor: "#f3e4ea",
-    paddingVertical: 2,
-    borderRadius: 20,
-    marginTop: 20,
+    borderRadius: width * 0.04,
+    marginTop: height * 0.02,
+    paddingHorizontal: width * 0.03,
+    paddingVertical: height * 0.015,
+    marginBottom: height * 0.01,
   },
   icon: {
-    marginLeft: 19,
+    marginRight: width * 0.03,
   },
   input: {
     color: "black",
-    marginVertical: 10,
-    width: 250,
-    fontSize: 15,
+    flex: 1,
+    fontSize: width * 0.04,
   },
   registerButton: {
-    width: 130,
+    width: width * 0.4,
     backgroundColor: "#e66388",
-    padding: 14,
-    borderRadius: 24,
-    marginLeft: "auto",
-    marginRight: "auto",
-    marginTop: 30,
-    marginBottom: 10,
+    padding: height * 0.02,
+    borderRadius: width * 0.06,
+    marginTop: height * 0.03,
+    alignSelf: "center",
   },
   registerButtonText: {
     textAlign: "center",
     color: "white",
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: width * 0.045,
   },
   registerLink: {
-    marginTop: 160,
+    marginTop: height * 0.07,
   },
   registerText: {
     textAlign: "center",
-    fontSize: 15,
+    fontSize: width * 0.045,
     color: "white",
   },
 });

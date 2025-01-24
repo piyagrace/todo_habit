@@ -65,7 +65,7 @@ const Todo = () => {
   const getUserTodos = async (uid) => {
     try {
       const response = await axios.get(
-        `http://192.168.1.50:3001/users/${uid}/todos`
+        `http://10.0.2.2:3001/users/${uid}/todos`
       );
       const fetchedTodos = response.data.todos || [];
       setTodos(fetchedTodos);
@@ -99,7 +99,7 @@ const Todo = () => {
     }
 
     const todoData = { title: "New Todo", category: category }; // Sample data for demo
-    await axios.post(`http://192.168.1.50:3001/todos/${userId}`, todoData);
+    await axios.post(`http://10.0.2.2:3001/todos/${userId}`, todoData);
     await getUserTodos(userId);
     setModalVisible(false);
     Alert.alert("Success", "Todo added successfully!");
@@ -163,7 +163,7 @@ const Todo = () => {
             try {
               const todoId = selectedTodo._id;
               const response = await axios.delete(
-                `http://192.168.1.50:3001/todos/${todoId}`,
+                `http://10.0.2.2:3001/todos/${todoId}`,
                 { data: { userId } }
               );
               if (response.status === 200) {
@@ -189,7 +189,7 @@ const Todo = () => {
       
       // Make the API call to mark the todo as completed
       const response = await axios.patch(
-        `http://192.168.1.50:3001/todos/${todoId}/complete`
+        `http://10.0.2.2:3001/todos/${todoId}/complete`
       );
       
       console.log(response.data);
